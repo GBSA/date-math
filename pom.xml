@@ -66,11 +66,6 @@
 				<artifactId>maven-scala-plugin</artifactId>
 				<version>2.15.2</version>
 				<configuration>
-					<args>
-						<arg>-optimise</arg>
-						<arg>-Xmax-classfile-name</arg>
-						<arg>128</arg>
-					</args>
 					<scalaVersion>${scala.version}</scalaVersion>
 				</configuration>
 				<executions>
