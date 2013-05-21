@@ -12,6 +12,7 @@ import scalaz.std.list._
 import scalaz.ValidationFunctions
 import scalaz.Scalaz._
 import scalaz.Failure
+
 // TODO REVIEW
 // also called ICMA Actual/Actual
 // Factor = (date2 - date1) / [Freq x (date3 - date1)]
