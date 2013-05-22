@@ -483,4 +483,4 @@ case object ZM extends Iso3166Country("ZAMBIA", "ZMB", 894)
 case object ZW extends Iso3166Country("ZIMBABWE", "ZWE", 716)
 
 // Not an ISO Country, but included because it often has to be thought of and dealt with as a country
-case object EU extends Iso3166Country("EUROPEAN UNION", null, -1)
+case object EU extends Iso3166Country("EUROPEAN UNION", "", -1)

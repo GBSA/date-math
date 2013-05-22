@@ -17,7 +17,7 @@ trait AccrualPeriod extends DatePeriod {
   def daycountCalculator: DaycountCalculator
   def paymentType: PaymentType
 
-  def getPaymentAmount(notional: Double): Double
+  def paymentAmount(notional: Double): Double
   def isPaymentPossible: Boolean
 
   val paymentDate = paymentType match {
@@ -25,27 +25,12 @@ trait AccrualPeriod extends DatePeriod {
     case IN_ARREARS => dateRange.endDate
   }
 
-  def getAdjustedEndDate: DateMidnight = {
-    if (accrualPlanningStrategyConvention.businessDayConvention == UNADJUSTED)
-      dateRange.endDate
-    else
-      accrualPlanningStrategyConvention.holidayCalendar.adjust(dateRange.endDate, accrualPlanningStrategyConvention.businessDayConvention)
-  }
+  def adjustedEndDate: DateMidnight = accrualPlanningStrategyConvention.adjustEndDate(dateRange.endDate)
 
-  def getAdjustedPaymentDate: DateMidnight = {
-    if (paymentPlanningStrategyConvention.businessDayConvention == UNADJUSTED)
-      paymentDate
-    else
-      paymentPlanningStrategyConvention.holidayCalendar.adjust(paymentDate, paymentPlanningStrategyConvention.businessDayConvention)
-  }
+  def adjustedPaymentDate: DateMidnight =paymentPlanningStrategyConvention.adjustPaymentDate(paymentDate) 
 
-  def getAdjustedStartDate: DateMidnight = {
-    if (accrualPlanningStrategyConvention.businessDayConvention == UNADJUSTED)
-      dateRange.startDate
-    else
-      accrualPlanningStrategyConvention.holidayCalendar.adjust(dateRange.startDate, accrualPlanningStrategyConvention.businessDayConvention)
-  }
+  def adjustedStartDate: DateMidnight = accrualPlanningStrategyConvention.adjustStartDate(dateRange.startDate)
 
-  def getAdjustedDaycountFraction: Double = daycountCalculator.calculateDaycountFraction(dateRange)
+  def adjustedDaycountFraction: Double = daycountCalculator.calculateDaycountFraction(dateRange)
 
 }

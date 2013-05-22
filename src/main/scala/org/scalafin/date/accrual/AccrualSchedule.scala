@@ -74,7 +74,7 @@ class AccrualSchedule[T <: AccrualPeriod, U <: Payment](paymentPrototype: U)(imp
       for (i <- 0 until accrualScheduleCut.toOption.get.periods.length) {
         val acc = accrualScheduleCut.toOption.get.periods.apply(i)
         val not = notionalScheduleCut.toOption.get.periods.apply(i)
-        val paymentAmount = acc.getPaymentAmount(not.amount)
+        val paymentAmount = acc.paymentAmount(not.amount)
         //paymentPrototype.clone(amount = paymentAmount, currency = not.currency, paymentDate = acc.paymentDate)
         arrbuf += (new Payment(paymentAmount, not.currency, acc.paymentDate)).asInstanceOf[U]
       }

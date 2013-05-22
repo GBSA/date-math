@@ -27,11 +27,11 @@ case class FloatAccrualPeriod(
     case _ => fixingDetails.planningStrategyConvention.holidayCalendar.advance(paymentDate, fixingDetails.calendarOffsetDays, UNADJUSTED)
   }
 
-  def getPaymentAmount(notional: Double): Double = {
+  def paymentAmount(notional: Double): Double = {
     if (isPaymentPossible)
-      getAdjustedDaycountFraction * fixingDetails.rate * notional
+      adjustedDaycountFraction * fixingDetails.rate * notional
     else
-      -1
+      -1 // TODO better to return an exception or a Validation ? 
   }
   def isPaymentPossible: Boolean = fixingDetails.rate != -1
   def getAdjustedFixingDate: DateMidnight = fixingDetails.planningStrategyConvention.holidayCalendar.adjust(fixingDetails.date, fixingDetails.planningStrategyConvention.businessDayConvention)

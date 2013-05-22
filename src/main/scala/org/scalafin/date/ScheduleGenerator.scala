@@ -116,7 +116,7 @@ case object NoScheduleGenerator extends ScheduleGenerator {
         val nextDate = frequency.add(frequencyAmount * count, dateRange.startDate)
         val currentPeriod = for {
           d1 <- dateRange.copyAndModify(Some(holdDate), Some(nextDate))
-        } yield SimplePeriod(d1, Some(d1))
+        } yield SimplePeriod(d1)
         currentPeriod.toList ::: generateNextDate(nextDate, count + 1)
       }
     }

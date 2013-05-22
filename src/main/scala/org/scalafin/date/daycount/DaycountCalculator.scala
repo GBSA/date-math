@@ -6,9 +6,28 @@ import org.joda.time.DateMidnight
 import scalaz.Validation
 import org.scalafin.date.DateRangeException
 import org.scalafin.date.DateRange
+import org.scalafin.date.holiday.HolidayCalendar
+import org.scalafin.date.DateOps
 
-trait DaycountCalculator {
-  def calculateDaycountFraction(dateRange: DateRange, periodRange: Option[DateRange] = None): Double
-  def calculateDaycountFraction(period: DatePeriod): Double = calculateDaycountFraction(period.dateRange, period.originalDateRange)
-  def daysBetween(d1: DateMidnight, d2: DateMidnight): Long = Math.round((d1 to d2).millis / (1000d * 60d * 60d * 24d))
+trait DaycountCalculator extends DateOps {
+  
+  def calculateDaycountFraction(dateRange: DateRange): Double
+  
+  def calculateDaycountFraction(period: DatePeriod): Double = calculateDaycountFraction(period.dateRange)
+  
+  def apply(period:DatePeriod):Double = calculateDaycountFraction(period)
+  
+  def apply(dateRange:DateRange):Double = calculateDaycountFraction(dateRange)
+
+  
+  
+  
 }
+
+class SimpleDaycountCalculator(val f: DateRange => Double) extends DaycountCalculator{
+  
+    def calculateDaycountFraction(dateRange: DateRange): Double = f(dateRange)
+    
+}
+
+

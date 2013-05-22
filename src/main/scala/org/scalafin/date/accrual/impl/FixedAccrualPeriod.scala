@@ -22,7 +22,7 @@ case class FixedAccrualPeriod(
   originalDateRange: Option[DateRange])
   extends AccrualPeriod {
 
-  def getPaymentAmount(notional: Double): Double = getAdjustedDaycountFraction * fixedRate * notional
+  def paymentAmount(notional: Double): Double = adjustedDaycountFraction * fixedRate * notional
   def isPaymentPossible: Boolean = true
 
 }

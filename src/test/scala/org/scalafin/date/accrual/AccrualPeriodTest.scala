@@ -15,7 +15,7 @@ class AccrualPeriodTest extends Specification {
       val dateRange = DateRange(ISDADateFormat.parse("2007/11/10"), ISDADateFormat.parse("2008/11/10"))
       val paymentPlanningStrategyConvention = PlanningStrategyConvention(UNADJUSTED, null)
       val accrualPeriod = new FixedAccrualPeriod(dateRange.toOption.get, paymentPlanningStrategyConvention, null, null, 0, IN_ADVANCE, None)
-      ISDADateFormat.format(accrualPeriod.getAdjustedPaymentDate) must beMatching("2007/11/10")
+      ISDADateFormat.format(accrualPeriod.adjustedPaymentDate) must beMatching("2007/11/10")
     }
   }
 }
