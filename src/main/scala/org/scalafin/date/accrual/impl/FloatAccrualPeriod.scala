@@ -22,17 +22,14 @@ case class FloatAccrualPeriod(
   paymentType: PaymentType,
   originalDateRange: Option[DateRange]) extends AccrualPeriod {
 
-  val fixingCalendar = fixingDetails.adjustmentType match {
-    case BUSINESS_DAYS => fixingDetails.planningStrategyConvention.holidayCalendar.advanceBusinessDay(paymentDate, fixingDetails.calendarOffsetDays)
-    case _ => fixingDetails.planningStrategyConvention.holidayCalendar.advance(paymentDate, fixingDetails.calendarOffsetDays, UNADJUSTED)
-  }
+  val fixingDate = fixingDetails.calculateFixingDate(paymentDate)
 
   def paymentAmount(notional: Double): Double = {
     if (isPaymentPossible)
       adjustedDaycountFraction * fixingDetails.rate * notional
     else
-      -1 // TODO better to return an exception or a Validation ? 
+      -1 // FIXME better to return an exception or a Validation ? 
   }
   def isPaymentPossible: Boolean = fixingDetails.rate != -1
-  def getAdjustedFixingDate: DateMidnight = fixingDetails.planningStrategyConvention.holidayCalendar.adjust(fixingDetails.date, fixingDetails.planningStrategyConvention.businessDayConvention)
+  def getAdjustedFixingDate: DateMidnight = fixingDetails.adjustFinancialDate
 }

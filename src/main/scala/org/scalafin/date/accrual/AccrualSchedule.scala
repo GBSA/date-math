@@ -9,7 +9,7 @@ import org.scalafin.common.Iso4217Currency
 import org.scalafin.date.DatePeriodSplitter._
 import org.scalafin.date.DatePeriodSplitter
 
-//TODO
+// FIXME review this class
 class AccrualSchedule[T <: AccrualPeriod, U <: Payment](paymentPrototype: U)(implicit datePeriodSplitter: DatePeriodSplitter[T]) {
   var accrualPeriods: List[T] = List()
 
@@ -39,6 +39,7 @@ class AccrualSchedule[T <: AccrualPeriod, U <: Payment](paymentPrototype: U)(imp
     netPayments_(payments, List[(DateMidnight, Iso4217Currency)]())
   }
 
+  // FIXME not so Scala-style...
   def getPayments(notionalSchedule: NotionalSchedule): List[U] = {
     val dateRange = accrualPeriods.apply(0).dateRange.copyAndModify(newEnd = Some(getEndDate))
 
@@ -46,15 +47,6 @@ class AccrualSchedule[T <: AccrualPeriod, U <: Payment](paymentPrototype: U)(imp
 
     val accrualScheduleCutter = Schedule(accrualPeriods)
     val notionalScheduleCutter = notionalPeriods flatMap (Schedule(_))
-
-    //val accrualScheduleCut = accrualScheduleCutter map (_.cutSchedule(notionalPeriods))
-    //val notionalScheduleCut = notionalScheduleCutter map (_.cutSchedule(accrualPeriods))
-
-    //        val (accrualScheduleCut, notionalScheduleCut) = for {
-    //          accrual <- accrualScheduleCutter
-    //          notional <- notionalScheduleCutter
-    //          np <- notionalPeriods
-    //        } yield (accrual.cutSchedule(np), notional.cutSchedule(accrualPeriods))
 
     val accrualScheduleCut = for {
       accrual <- accrualScheduleCutter
@@ -67,7 +59,7 @@ class AccrualSchedule[T <: AccrualPeriod, U <: Payment](paymentPrototype: U)(imp
     } yield notional.cutSchedule(accrualPeriods)
 
     if (accrualScheduleCut.map(_.periods) != notionalScheduleCut.map(_.periods)) {
-      // TODO error return validation?
+      // FIXME error return validation?
       null
     } else {
       val arrbuf = new ArrayBuffer[U]()
@@ -75,7 +67,6 @@ class AccrualSchedule[T <: AccrualPeriod, U <: Payment](paymentPrototype: U)(imp
         val acc = accrualScheduleCut.toOption.get.periods.apply(i)
         val not = notionalScheduleCut.toOption.get.periods.apply(i)
         val paymentAmount = acc.paymentAmount(not.amount)
-        //paymentPrototype.clone(amount = paymentAmount, currency = not.currency, paymentDate = acc.paymentDate)
         arrbuf += (new Payment(paymentAmount, not.currency, acc.paymentDate)).asInstanceOf[U]
       }
       arrbuf.toList

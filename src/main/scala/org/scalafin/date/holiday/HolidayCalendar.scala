@@ -23,7 +23,7 @@ case object PrecedingAdjustment extends BusinessDayConventionAdjustment {
   def adjust(dt: DateMidnight, hc: HolidayCalendar): DateMidnight = {
     def adjust_(dt1: DateMidnight): DateMidnight = {
       if (hc.isHoliday(dt1) || hc.isWeekend(dt1)) {
-        adjust_(dt1.minusDays(1))
+        adjust_(dt1 minusDays 1)
       } else {
         dt1
       }
@@ -36,7 +36,7 @@ case object FollowingAdjustment extends BusinessDayConventionAdjustment {
   def adjust(dt: DateMidnight, hc: HolidayCalendar): DateMidnight = {
     def adjust_(dt1: DateMidnight): DateMidnight = {
       if (hc.isHoliday(dt1) || hc.isWeekend(dt1)) {
-        adjust_(dt1.plusDays(1))
+        adjust_(dt1 plusDays 1)
       } else {
         dt1
       }
@@ -53,7 +53,7 @@ case object MonthEndReference extends BusinessDayConventionAdjustment {
 case object ModifiedPrecedingAdjustment extends BusinessDayConventionAdjustment {
   def adjust(dt: DateMidnight, hc: HolidayCalendar): DateMidnight = {
     val adjustedDate = PrecedingAdjustment.adjust(dt, hc)
-    if (adjustedDate.monthOfYear != dt.monthOfYear()) {
+    if (adjustedDate.monthOfYear != dt.monthOfYear) {
       FollowingAdjustment.adjust(dt, hc)
     } else {
       adjustedDate
@@ -64,7 +64,7 @@ case object ModifiedPrecedingAdjustment extends BusinessDayConventionAdjustment 
 case object ModifiedFollowingAdjustment extends BusinessDayConventionAdjustment {
   def adjust(dt: DateMidnight, hc: HolidayCalendar): DateMidnight = {
     val adjustedDate = FollowingAdjustment.adjust(dt, hc)
-    if (adjustedDate.monthOfYear != dt.monthOfYear()) {
+    if (adjustedDate.monthOfYear != dt.monthOfYear) {
       PrecedingAdjustment.adjust(dt, hc)
     } else {
       adjustedDate
@@ -83,14 +83,14 @@ abstract class HolidayCalendar {
     if (offsetAmount == 0) {
       forBusinessDayConvention(businessDayConvention).adjust(date, this)
     } else if (offsetAmount > 0) {
-      val nextDate = date.plusDays(1)
+      val nextDate = date plusDays 1
       if (isWeekend(nextDate) || isHoliday(nextDate)) {
         advance(nextDate, offsetAmount, businessDayConvention)
       } else {
         advance(nextDate, offsetAmount - 1, businessDayConvention)
       }
     } else {
-      val nextDate = date.minusDays(1)
+      val nextDate = date minusDays 1
       if (isWeekend(nextDate) || isHoliday(nextDate)) {
         advance(nextDate, offsetAmount, businessDayConvention)
       } else {
@@ -99,8 +99,7 @@ abstract class HolidayCalendar {
     }
   }
 
-  //TODO sort out function names...
-  def adjust(date: DateMidnight, bdc: BusinessDayConvention): DateMidnight = {
+  def adjustFinancialDate(date: DateMidnight, bdc: BusinessDayConvention): DateMidnight = {
     forBusinessDayConvention(bdc).adjust(date, this)
   }
 
@@ -122,6 +121,6 @@ abstract class HolidayCalendar {
       1 + getBusinessDaysBetween(advanceBusinessDays(startDate, 1), endDate)
     }
   }
-  def advanceBusinessDay(dt: DateMidnight, offsetAmount: Int): DateMidnight = advance(dt, offsetAmount, UNADJUSTED)
+  def advanceBusinessDay(date: DateMidnight, offsetAmount: Int): DateMidnight = advance(date, offsetAmount, UNADJUSTED)
 }
 

@@ -11,7 +11,6 @@ import org.joda.time.DateMidnight
  *
  */
 object ISDADateFormat {
-
   /**
    *
    * Efficient method to return a DateMidnight formatted as YYYY/M/D
@@ -52,15 +51,8 @@ object ISDADateFormat {
    * @return A string representing the date in the DateMidnight
    */
   def formatFixedLength(dt: DateMidnight, delimiter: String): String = {
-    var month = dt.monthOfYear.getAsString
-    var day = dt.dayOfMonth.getAsString
-    if (dt.monthOfYear.get < 10) {
-      month = 0 + month
-    }
-
-    if (dt.dayOfMonth.get < 10) {
-      day = 0 + day
-    }
+    val month = if (dt.getMonthOfYear < 10) "0" + dt.monthOfYear.getAsString else dt.monthOfYear.getAsString
+    val day = if (dt.getDayOfMonth < 10) "0" + dt.dayOfMonth.getAsString else dt.dayOfMonth.getAsString
 
     dt.yearOfEra.getAsString + delimiter + month + delimiter + day
   }
@@ -71,13 +63,11 @@ object ISDADateFormat {
    * @param in
    *            The String to parse
    * @return The DateMidnight for the given string
-   * @throws ParseException
    */
+  // FIXME return validation in case of bad input?
   def parse(stringDate: String): DateMidnight = {
-    // TODO this is ugly and unsafe
-    val splitString = stringDate.split("/")
-    // TODO get rid of the time?
-    DateTime.now.withDate(splitString.apply(0).toInt, splitString.apply(1).toInt, splitString.apply(2).toInt).toDateMidnight
+    val pattern = "YYYY/MM/dd"
+    DateMidnight.parse(stringDate, DateTimeFormat.forPattern(pattern))
   }
 
 }

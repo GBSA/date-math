@@ -11,6 +11,7 @@ import org.scalafin.date.daycount.DaycountCalculators.Actual360DaycountCalculato
 import scalaz.Success
 import org.scalafin.date.daycount.DaycountCalculators
 import org.scalafin.date.daycount.Actual360
+import org.scalafin.date.daycount.ISMAActualActual
 
 @RunWith(classOf[JUnitRunner])
 class ScheduleGeneratorSanityCheckTest extends Specification {
@@ -39,10 +40,8 @@ class ScheduleGeneratorSanityCheckTest extends Specification {
       val stubType = NONE
       val dateRange = DateRange(start, end)
 
-      val calculator2 = DaycountCalculators[Actual360]
       
-      
-      val calculator = ISMAActualActualDaycountCalculator(frequency)
+      val calculator = (new ISMAActualActual[frequency.type]).calculator(frequency)
 
       val calculationResult = dateRange map calculator.apply
 

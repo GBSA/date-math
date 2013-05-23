@@ -8,7 +8,6 @@ import scalaz.Validation
  * Utility class for creating an UNADJUSTED schedule between two dates using a
  * given stub type and frequency.
  */
-// TODO finish to implement all the possible API for the users
 sealed trait ScheduleGenerator {
   def generateSchedule(dateRange: DateRange, frequency: Frequency, frequencyAmount: Int, maxPeriods: Int = Integer.MAX_VALUE, prototype: Option[SimplePeriod] = None): List[SimplePeriod]
 }
@@ -82,6 +81,7 @@ case object LongStubFirstScheduleGenerator extends ScheduleGenerator {
     generateNextDate(dateRange.endDate, 1)
   }
 }
+
 case object LongStubLastScheduleGenerator extends ScheduleGenerator {
   def generateSchedule(dateRange: DateRange, frequency: Frequency, frequencyAmount: Int, maxPeriods: Int = Integer.MAX_VALUE, prototype: Option[SimplePeriod] = None): List[SimplePeriod] = {
 
@@ -106,7 +106,6 @@ case object LongStubLastScheduleGenerator extends ScheduleGenerator {
 }
 
 case object NoScheduleGenerator extends ScheduleGenerator {
-
   def generateSchedule(dateRange: DateRange, frequency: Frequency, frequencyAmount: Int, maxPeriods: Int = Integer.MAX_VALUE, prototype: Option[SimplePeriod] = None): List[SimplePeriod] = {
 
     def generateNextDate(holdDate: DateMidnight, count: Int): List[SimplePeriod] = {
@@ -126,7 +125,6 @@ case object NoScheduleGenerator extends ScheduleGenerator {
 }
 
 object ScheduleGenerator {
-
   def forStubType(stubType: StubType): ScheduleGenerator = {
     stubType match {
       case SHORT_FIRST => ShortStubFirstScheduleGenerator

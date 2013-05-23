@@ -15,10 +15,8 @@ import com.github.nscala_time.time.Imports._
 trait DatePeriod {
 
   def dateRange: DateRange
-  
 
   def contains(date: DateMidnight): Boolean = dateRange.startDate < date && dateRange.endDate > date
-  
 
   /**
    * Creates a human readable String representing this period, e.g: 2005/1/1 - 2006/12/30

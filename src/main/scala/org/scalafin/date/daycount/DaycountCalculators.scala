@@ -33,7 +33,7 @@ object DaycountCalculators extends DateOps {
     def diy(dateRange: DateRange): Double = {
       val dates = dateRange extremesAsSeq
       val februaries29 = dates.flatMap {
-        date => february29InYear(date.year.get)
+        date => february29InYear(date.getYear)
       }.filter(february29 => february29 >= dateRange.startDate && february29 <= dateRange.endDate)
       if (februaries29.isEmpty)
         365.0
@@ -66,7 +66,7 @@ object DaycountCalculators extends DateOps {
 
   case object ISDAActualActualDaycountCalculator extends DaycountCalculator {
 
-    def previousDateBuilder(date: DateMidnight) = date minus (date.dayOfYear.get)
+    def previousDateBuilder(date: DateMidnight) = date minus (date.getDayOfYear)
 
     def tau(dateRange: DateRange) = daysBetween(dateRange.startDate, dateRange.endDate) / dateRange.startDate.dayOfYear.getMaximumValue
 
@@ -89,7 +89,7 @@ object DaycountCalculators extends DateOps {
     }
 
     def isAfter27OfFebruary(date: DateMidnight): Boolean = {
-      date.getDayOfMonth() > 27 && date.monthOfYear == DateTimeConstants.FEBRUARY
+      date.getDayOfMonth > 27 && date.monthOfYear == DateTimeConstants.FEBRUARY
     }
 
     def correctDay(dayInt: Int, date: DateMidnight): Int = if (isAfter27OfFebruary(date)) 30 else dayInt
@@ -135,7 +135,7 @@ object DaycountCalculators extends DateOps {
 
   }
 
-  case class Business252DaycountCalculator(implicit hc: HolidayCalendar) extends SimpleDaycountCalculator(dateRange => hc.getBusinessDaysBetween(dateRange.startDate, dateRange.endDate) / 252.0)
+  case class Business252DaycountCalculator(hc: HolidayCalendar) extends SimpleDaycountCalculator(dateRange => hc.getBusinessDaysBetween(dateRange.startDate, dateRange.endDate) / 252.0)
 
   case class ISMAActualActualDaycountCalculator(frequency: Frequency with ExactFitInYear) extends DaycountCalculator {
 
@@ -149,34 +149,6 @@ object DaycountCalculators extends DateOps {
       daysInRange / (frequency.periodsPerYear * daysInPeriod)
     }
   }
-
-  trait ConventionCalculatorAssociation[A <: DaycountConvention] {
-    def calculator: DaycountCalculator
-  }
-
-  object ConventionCalculatorAssociation {
-    implicit def Actual360AssociationFactory: ConventionCalculatorAssociation[Actual360] = new ConventionCalculatorAssociation[Actual360] {
-      def calculator: DaycountCalculator = Actual360DaycountCalculator
-    }
-  }
-
-//  trait ConventionCalculatorAssociations {
-//
-//    implicit def ISMAActualActualAssociationFactory(frequency: Frequency with ExactFitInYear): ConventionCalculatorAssociation[ISMAActualActual] = new ConventionCalculatorAssociation[ISMAActualActual] {
-//      def calculator: DaycountCalculator = ISMAActualActualDaycountCalculator(frequency)
-//    }
-//
-//  }
-
-  def apply[A <: DaycountConvention]: DaycountCalculator = implicitly[ConventionCalculatorAssociation[Actual360]].calculator
-
-  //def apply[A <: DaycountConvention]: DaycountCalculator = implicitly[ConventionCalculatorAssociation[Actual360]].calculator
-
-  //def apply[A <: DaycountConvention]: DaycountCalculator = Actual360DaycountCalculator
-
-  //def apply[A <: DaycountConvention: ConventionCalculatorAssociation]: DaycountCalculator = implicitly[ConventionCalculatorAssociation[A]].calculator
-
-  def apply[B, A <: DaycountConvention](b: B)(implicit associationBuilder: B => ConventionCalculatorAssociation[A]): DaycountCalculator = associationBuilder(b).calculator
 
 }
 

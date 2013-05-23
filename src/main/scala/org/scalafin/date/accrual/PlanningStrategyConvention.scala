@@ -10,20 +10,20 @@ case class PlanningStrategyConvention(businessDayConvention: BusinessDayConventi
     if (businessDayConvention == UNADJUSTED)
       date
     else
-      holidayCalendar.adjust(date, businessDayConvention)
+      holidayCalendar.adjustFinancialDate(date, businessDayConvention)
   }
 
   def adjustPaymentDate(date: DateMidnight): DateMidnight = {
     if (businessDayConvention == UNADJUSTED)
       date
     else
-      holidayCalendar.adjust(date, businessDayConvention)
+      holidayCalendar.adjustFinancialDate(date, businessDayConvention)
   }
 
   def adjustStartDate(date: DateMidnight): DateMidnight = {
     if (businessDayConvention == UNADJUSTED)
       date
     else
-      holidayCalendar.adjust(date, businessDayConvention)
+      holidayCalendar.adjustFinancialDate(date, businessDayConvention)
   }
 }

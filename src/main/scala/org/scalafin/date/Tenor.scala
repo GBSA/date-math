@@ -16,7 +16,7 @@ object Tenor {
   private val monthFormat = new DecimalFormat("#M")
   private val yearFormat = new DecimalFormat("#Y")
 
-  // Use regexp instead?
+  // TODO Use regexp instead?
   def apply(toParse: String): Validation[TenorParseException, Tenor] = {
     // Deal with spot node synonyms
     if (spotNodeSynonyms contains toParse) {

@@ -18,7 +18,7 @@ class SimpleDatePeriodTest extends Specification {
       val dateRange = DateRange(date1, date2).toOption.get
       val datePeriod = SimplePeriod(dateRange)
       println(datePeriod.toString)
-      datePeriod.toString must beMatching("2013/5/1 - 2013/5/9 with reference None - None")
+      datePeriod.toString must beMatching("2013/5/1 - 2013/5/9")
     }
   }
 

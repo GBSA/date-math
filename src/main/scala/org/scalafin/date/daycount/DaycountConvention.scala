@@ -1,26 +1,55 @@
 package org.scalafin.date.daycount
-
-import org.scalafin.date.daycount.DaycountCalculators.ConventionCalculatorAssociation
+//http://eclipsesoftware.biz/DayCountConventions.html
 import org.scalafin.date.daycount.DaycountCalculators._
+import org.scalafin.date.holiday.HolidayCalendar
+import org.scalafin.date.ExactFitInYear
+import org.scalafin.date.Frequency
 
-sealed abstract class DaycountConvention
+trait SimpleCalculator {
+  def calculator: DaycountCalculator
+}
 
-case class Actual360 extends DaycountConvention
+trait ParametrizedCalculator[T] {
+  def calculator(t: T): DaycountCalculator
+}
 
-case class Actual365Fixed extends DaycountConvention
+sealed trait DaycountConvention
 
-case class Actual366 extends DaycountConvention
+case object Actual360 extends DaycountConvention with SimpleCalculator {
+  val calculator = Actual360DaycountCalculator
+}
 
-case class AFBActualActual extends DaycountConvention
+case object Actual365Fixed extends DaycountConvention with SimpleCalculator {
+  val calculator = Actual365FixedDaycountCalculator
+}
+case object Actual366 extends DaycountConvention with SimpleCalculator {
+  val calculator = Actual366DaycountCalculator
+}
 
-case class Business252 extends DaycountConvention
+case object AFBActualActual extends DaycountConvention with SimpleCalculator {
+  val calculator = AFBActualActualDaycountCalculator
+}
 
-case class EU30360 extends DaycountConvention
+case object EU30360 extends DaycountConvention with SimpleCalculator {
+  val calculator = EU30360DaycountCalculator
+}
 
-case class ISDAActualActual extends DaycountConvention
+case object ISDAActualActual extends DaycountConvention with SimpleCalculator {
+  val calculator = ISDAActualActualDaycountCalculator
+}
 
-case class ISMAActualActual extends DaycountConvention
+case object IT30360 extends DaycountConvention with SimpleCalculator {
+  val calculator = IT30360DaycountCalculator
+}
 
-case class IT30360 extends DaycountConvention
+case object US30360 extends DaycountConvention with SimpleCalculator {
+  val calculator = US30360DaycountCalculator
+}
 
-case class US30360 extends DaycountConvention
+case class ISMAActualActual[T <: Frequency with ExactFitInYear] extends DaycountConvention with ParametrizedCalculator[T] {
+  def calculator(frequency: T) = new ISMAActualActualDaycountCalculator(frequency)
+}
+
+case class Business252[T <: HolidayCalendar] extends DaycountConvention with ParametrizedCalculator[T] {
+  def calculator(hc: T) = new Business252DaycountCalculator(hc)
+}
