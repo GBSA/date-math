@@ -3,12 +3,10 @@ package org.scalafin.accrual
 import org.specs2.mutable._
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
-import org.scalafin.accrual.impl.FixedAccrualPeriod
-import org.scalafin.accrual.IN_ADVANCE
 import org.scalafin.convention.UNADJUSTED
 import org.scalafin.util.ISDADateFormat
 import org.scalafin.date.DateRange
-import org.scalafin.accrual.PlanningStrategyConvention
+
 
 @RunWith(classOf[JUnitRunner])
 class AccrualPeriodTest extends Specification {

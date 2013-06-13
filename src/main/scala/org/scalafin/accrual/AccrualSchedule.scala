@@ -38,40 +38,40 @@ class AccrualSchedule[T <: AccrualPeriod, U <: Payment](paymentPrototype: U)(imp
 
     netPayments_(payments, List[(DateMidnight, Iso4217Currency)]())
   }
-
+    def getPayments(notionalSchedule: NotionalSchedule): List[U] = List.empty[U]
   // FIXME not so Scala-style...
-  def getPayments(notionalSchedule: NotionalSchedule): List[U] = {
-    val dateRange = accrualPeriods.apply(0).dateRange.copyAndModify(newEnd = Some(getEndDate))
-
-    val notionalPeriods = dateRange map (notionalSchedule.getNotionalPeriodsBetween(_))
-
-    val accrualScheduleCutter = Schedule(accrualPeriods)
-    val notionalScheduleCutter = notionalPeriods flatMap (Schedule(_))
-
-    val accrualScheduleCut = for {
-      accrual <- accrualScheduleCutter
-      np <- notionalPeriods
-    } yield accrual.cutSchedule(np)
-
-    val notionalScheduleCut = for {
-      notional <- notionalScheduleCutter
-      np <- notionalPeriods
-    } yield notional.cutSchedule(accrualPeriods)
-
-    if (accrualScheduleCut.map(_.periods) != notionalScheduleCut.map(_.periods)) {
-      // FIXME error return validation?
-      null
-    } else {
-      val arrbuf = new ArrayBuffer[U]()
-      for (i <- 0 until accrualScheduleCut.toOption.get.periods.length) {
-        val acc = accrualScheduleCut.toOption.get.periods.apply(i)
-        val not = notionalScheduleCut.toOption.get.periods.apply(i)
-        val paymentAmount = acc.paymentAmount(not.amount)
-        arrbuf += (new Payment(paymentAmount, not.currency, acc.paymentDate)).asInstanceOf[U]
-      }
-      arrbuf.toList
-    }
-  }
+//  def getPayments(notionalSchedule: NotionalSchedule): List[U] = {
+//    val dateRange = accrualPeriods.apply(0).dateRange.copyAndModify(newEnd = Some(getEndDate))
+//
+//    val notionalPeriods = dateRange map (notionalSchedule.getNotionalPeriodsBetween(_))
+//
+//    val accrualScheduleCutter = Schedule(accrualPeriods)
+//    val notionalScheduleCutter = notionalPeriods flatMap (Schedule(_))
+//
+//    val accrualScheduleCut = for {
+//      accrual <- accrualScheduleCutter
+//      np <- notionalPeriods
+//    } yield accrual.cutSchedule(np)
+//
+//    val notionalScheduleCut = for {
+//      notional <- notionalScheduleCutter
+//      np <- notionalPeriods
+//    } yield notional.cutSchedule(accrualPeriods)
+//
+//    if (accrualScheduleCut.map(_.periods) != notionalScheduleCut.map(_.periods)) {
+//      // FIXME error return validation?
+//      null
+//    } else {
+//      val arrbuf = new ArrayBuffer[U]()
+//      for (i <- 0 until accrualScheduleCut.toOption.get.periods.length) {
+//        val acc = accrualScheduleCut.toOption.get.periods.apply(i)
+//        val not = notionalScheduleCut.toOption.get.periods.apply(i)
+//        val paymentAmount = acc.paymentAmount(not.amount)
+//        arrbuf += (new Payment(paymentAmount, not.currency, acc.paymentDate)).asInstanceOf[U]
+//      }
+//      arrbuf.toList
+//    }
+//  }
 
   def getStartDate = accrualPeriods.apply(0).dateRange.startDate
   def getEndDate = accrualPeriods.apply(accrualPeriods.length - 1).dateRange.endDate

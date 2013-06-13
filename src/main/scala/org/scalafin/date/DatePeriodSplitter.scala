@@ -3,9 +3,11 @@ package org.scalafin.date
 import org.joda.time.DateMidnight
 import org.scalafin.accrual.NotionalPeriod
 import org.scalafin.accrual.AccrualPeriod
-import scalaz.Lens
-import scalaz.Validation
-import scalaz.Scalaz._
+import scalaz.{Success, Lens, Validation}
+import Ordering.Implicits._
+import DateOrdering._
+import scala.annotation.tailrec
+import scala.collection.immutable.TreeSet
 
 trait DatePeriodSplitter[T <: DatePeriod] {
 
@@ -19,25 +21,56 @@ trait DatePeriodSplitter[T <: DatePeriod] {
 
   def splitNative(period: T, date: DateMidnight): (Validation[DateRangeException, T], Validation[DateRangeException, T])
 
+  def cut(period:T,dates: Seq[DateMidnight]): Seq[T] = {
+    @tailrec
+    def splitPeriods(period:T,currentDate:DateMidnight, dateSplit:Iterator[DateMidnight],previousPeriods:Seq[T]):Seq[T] = {
+      val (splittedPeriods) = split(period,currentDate)
+      if(!dateSplit.hasNext)
+        previousPeriods ++ splittedPeriods.map {
+                                                 tuple => Seq(tuple._1, tuple._2)
+                                               }.getOrElse(Seq.empty[T])
+
+      else
+        if(splittedPeriods.isEmpty)
+            previousPeriods
+        else {
+          val nextDate = dateSplit.next()
+          val (period1,period2)  = splittedPeriods.get
+          val (toSplit,toKeep) = if(period1.dateRange.endDate > nextDate) (period1,period2) else (period2,period1)
+          splitPeriods(toSplit,nextDate,dateSplit, previousPeriods:+toKeep)
+      }
+    }
+    if(dates.isEmpty)
+      Seq(period)
+    else{
+      val iterator = dates.sorted.iterator
+      splitPeriods(period,iterator.next(),iterator,Seq.empty[T])
+
+    }
+
+  }
+
+
+
 }
 
 trait DatePeriodOps[T <: DatePeriod] {
 
-  def split(date: DateMidnight): Option[(T, T)]
+  def splitter:DatePeriodSplitter[T]
 
-  def cut(dates: Seq[DateMidnight]): Seq[T] = {
-    val result = for {
-      date <- dates
-      splitPeriod <- split(date)
-    } yield Seq(splitPeriod._1, splitPeriod._2)
-    result.flatten
-  }
+  def self:T
+
+  def split(date: DateMidnight): Option[(T, T)] = splitter.split(self,date)
+
+
+  def cut(dates: Seq[DateMidnight]): Seq[T] = splitter.cut(self,dates)
 
 }
 
 trait DatePeriodOpsFunc {
-  implicit def toDatePeriodOps[T <: DatePeriod](t: T)(implicit splitter: DatePeriodSplitter[T]) = new DatePeriodOps[T] {
-    def split(date: DateMidnight): Option[(T, T)] = splitter.split(t, date)
+  implicit def toDatePeriodOps[T <: DatePeriod](t: T)(implicit splitter0: DatePeriodSplitter[T]) = new DatePeriodOps[T] {
+    val self = t
+    val splitter = splitter0
   }
 }
 
@@ -49,8 +82,14 @@ object DatePeriodSplitter {
   implicit val lensNotionalPeriod = Lens.lensu[NotionalPeriod, DateRange]((period, dateRange) => period.copy(dateRange = dateRange), _.dateRange)
   //  implicit val lensAccrualPeriod = Lens.lensu[AccrualPeriod,DateRange]( (period,dateRange) => period.copy(dateRange=dateRange),_.dateRange)
 
+  trait InvalidSplitDateException
+
+  //TODO: change return type to Validation[InvalidSplitDateException, (T,T)]
+
+
   implicit def splitter[T <: DatePeriod](implicit lens: Lens[T, DateRange]): DatePeriodSplitter[T] = new DatePeriodSplitter[T] {
     def splitNative(period: T, date: DateMidnight): (Validation[DateRangeException, T], Validation[DateRangeException, T]) = {
+
       val period1 = period.dateRange.copyAndModify(newEnd = Some(date)) map (lens.set(period, _))
       val period2 = period.dateRange.copyAndModify(newStart = Some(date)) map (lens.set(period, _))
       (period1, period2)

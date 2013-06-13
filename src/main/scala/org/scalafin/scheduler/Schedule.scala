@@ -12,7 +12,7 @@ import org.scalafin.date.DatePeriodSplitter
 class Schedule[+T <: DatePeriod] private (val periods: Seq[T])(implicit periodSplitter: DatePeriodSplitter[T]) {
 
   def cutSchedule[A <: DatePeriod](cutTemplate: Seq[A]): Schedule[T] = {
-    val splitDates: Seq[DateMidnight] = cutTemplate flatMap { _.dateRange.extremesAsSeq }
+    val splitDates = cutTemplate flatMap { _.dateRange.extremesAsSeq }
     cutScheduleByDates(splitDates)
   }
 
@@ -28,7 +28,7 @@ object Schedule {
     import org.scalafin.date.DateOrdering._
     val overlappingPeriods = for {
       period1 <- dates
-      period2 <- dates if (period1 != period2 && period1.dateRange.endDate > period2.dateRange.startDate)
+      period2 <- dates if period1 != period2 && period1.dateRange.endDate > period2.dateRange.startDate
     } yield (period1, period2)
 
     if (overlappingPeriods.isEmpty)

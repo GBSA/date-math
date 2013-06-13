@@ -1,16 +1,7 @@
-package org.scalafin.accrual.impl
+package org.scalafin.accrual
 
-import org.scalafin.accrual.AccrualPeriod
-import org.joda.time.DateMidnight
-import org.scalafin.date.DatePeriod
-import org.scalafin.holiday.HolidayCalendar
 import org.scalafin.daycount.DaycountCalculator
-import org.scalafin.convention.BusinessDayConvention
 import org.scalafin.date.DateRange
-import org.scalafin.accrual.PlanningStrategyConvention
-import org.scalafin.accrual.PaymentType
-import scalaz.Validation
-import org.scalafin.date.DateRangeException
 
 case class FixedAccrualPeriod(
   dateRange: DateRange,

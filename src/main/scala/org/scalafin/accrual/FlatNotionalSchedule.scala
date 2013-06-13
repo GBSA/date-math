@@ -1,10 +1,7 @@
-package org.scalafin.accrual.impl
+package org.scalafin.accrual
 
 import org.joda.time.DateMidnight
 import org.scalafin.convention.Iso4217Currency
-import org.scalafin.accrual.Notional
-import org.scalafin.accrual.NotionalPeriod
-import org.scalafin.accrual.NotionalSchedule
 import org.scalafin.date.DateRange
 
 class FlatNotionalSchedule(val amount: Double, val currency: Iso4217Currency) extends NotionalSchedule {

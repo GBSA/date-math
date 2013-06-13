@@ -1,5 +1,4 @@
-package org.scalafin.accrual.impl
-
+package org.scalafin.accrual
 
 sealed abstract class FixingAdjustmentType
 case object CALENDAR_DAYS extends FixingAdjustmentType

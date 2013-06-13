@@ -1,13 +1,11 @@
-package org.scalafin.accrual.impl
+package org.scalafin.accrual
 
-import org.scalafin.accrual.AccrualPeriod
+import org.scalafin.accrual.{FixingDetails, AccrualPeriod, PlanningStrategyConvention, PaymentType}
 import org.scalafin.convention.BusinessDayConvention
 import org.joda.time.DateMidnight
 import org.scalafin.holiday.HolidayCalendar
 import org.scalafin.daycount.DaycountCalculator
 import org.scalafin.date.DateRange
-import org.scalafin.accrual.PlanningStrategyConvention
-import org.scalafin.accrual.PaymentType
 import org.scalafin.convention.UNADJUSTED
 import scalaz.Validation
 import org.scalafin.date.DateRangeException

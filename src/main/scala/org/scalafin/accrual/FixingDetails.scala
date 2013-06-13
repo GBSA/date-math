@@ -1,7 +1,6 @@
-package org.scalafin.accrual.impl
+package org.scalafin.accrual
 
 import org.joda.time.DateMidnight
-import org.scalafin.accrual.PlanningStrategyConvention
 import org.scalafin.convention.UNADJUSTED
 
 case class FixingDetails(
