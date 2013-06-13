@@ -1,8 +1,8 @@
 package org.scalafin.date
 
 import org.joda.time.DateMidnight
-import org.scalafin.date.util.ISDADateFormat
-import org.scalafin.date.util.DateMidnightOrdering
+import org.scalafin.util.ISDADateFormat
+
 import scala.math.Ordering.Implicits._
 import com.github.nscala_time.time.Imports._
 

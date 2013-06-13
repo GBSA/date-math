@@ -1,8 +1,8 @@
 package org.scalafin.date
 
 import org.joda.time.DateMidnight
-import org.scalafin.date.accrual.NotionalPeriod
-import org.scalafin.date.accrual.AccrualPeriod
+import org.scalafin.accrual.NotionalPeriod
+import org.scalafin.accrual.AccrualPeriod
 import scalaz.Lens
 import scalaz.Validation
 import scalaz.Scalaz._

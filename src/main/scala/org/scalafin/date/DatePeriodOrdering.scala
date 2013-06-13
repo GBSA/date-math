@@ -1,6 +1,6 @@
 package org.scalafin.date
 
-import org.scalafin.date.util.DateMidnightOrdering
+import org.scalafin.date.DateOrdering
 import org.joda.time.DateMidnight
 
 object DatePeriodOrderings {
@@ -23,28 +23,13 @@ object DatePeriodOrderings {
         }
       }
     }
-
   }
 
   object MidPointOrdering extends MidPointOrdering
 
-  //
-  //  trait StartDateOrdering {
-  //    implicit val ordering: Ordering[DatePeriod] = new Ordering[DatePeriod] {
-  //      def compare(x: DatePeriod, y: DatePeriod): Int = DateMidnightOrdering.ordering.compare(x.startDate, y.startDate)
-  //    }
-  //  }
-  //
-  //  object StartDateOrdering extends StartDateOrdering
-  //
-  //  trait EndDateOrdering {
-  //    implicit val ordering: Ordering[DatePeriod] = new Ordering[DatePeriod] {
-  //      def compare(x: DatePeriod, y: DatePeriod): Int = DateMidnightOrdering.ordering.compare(x.endDate, y.endDate)
-  //    }
-  //  }
-  //
-  //  object EndDateOrdering extends EndDateOrdering
-  //
+  // TODO ?
+  // implement startPoint and endPoint ordering?
+  
 }
 
 
