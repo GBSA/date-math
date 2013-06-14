@@ -1,35 +1,39 @@
 package org.scalafin.date
 
-import org.scalafin.date.DateOrdering
 import org.joda.time.DateMidnight
 
 object DatePeriodOrderings {
 
   trait MidPointOrdering {
     implicit val ordering: Ordering[DatePeriod] = new Ordering[DatePeriod] {
-
       def getDoubleMidPoint(datePeriod: DatePeriod): Long = {
-        datePeriod.dateRange.startDate.getMillis + datePeriod.dateRange.endDate.getMillis
+        (datePeriod.dateRange.startDate.getMillis + datePeriod.dateRange.endDate.getMillis) / 2
       }
-
-      def getDoubleMidPoint(dt: DateMidnight): Long = 2 * dt.getMillis
-
+      def getDoubleMidPoint(dt: DateMidnight): Long = dt.getMillis
       def compare(x: DatePeriod, y: DatePeriod): Int = {
-        val retval: Int = ((getDoubleMidPoint(x) - getDoubleMidPoint(y)) / 60000l).toInt
-        if (retval == 0) {
-          0
-        } else {
-          retval / Math.abs(retval)
-        }
+        (getDoubleMidPoint(x) - getDoubleMidPoint(y)).toInt
       }
     }
   }
-
   object MidPointOrdering extends MidPointOrdering
 
-  // TODO ?
-  // implement startPoint and endPoint ordering?
-  
+  trait StartPointOrdering {
+    implicit val ordering: Ordering[DatePeriod] = new Ordering[DatePeriod] {
+      def compare(x: DatePeriod, y: DatePeriod): Int = {
+        (x.dateRange.startDate.getMillis - y.dateRange.startDate.getMillis).toInt
+      }
+    }
+  }
+  object StartPointOrdering extends StartPointOrdering
+
+  trait EndPointOrdering {
+    implicit val ordering: Ordering[DatePeriod] = new Ordering[DatePeriod] {
+      def compare(x: DatePeriod, y: DatePeriod): Int = {
+        (x.dateRange.endDate.getMillis - y.dateRange.endDate.getMillis).toInt
+      }
+    }
+  }
+  object EndPointOrdering extends EndPointOrdering
 }
 
 

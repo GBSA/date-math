@@ -1,9 +1,6 @@
 package org.scalafin.date
 
 import org.joda.time.DateMidnight
-import org.scalafin.date.DateRange;
-import org.scalafin.date.DateRangeException;
-import org.scalafin.date.DateRangeOps;
 
 import com.github.nscala_time.time.Imports._
 import scalaz.Success
