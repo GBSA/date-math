@@ -5,9 +5,9 @@ import scalaz.Success
 import scalaz.Failure
 import scala.math.Ordering.Implicits._
 import org.joda.time.DateMidnight
-import org.scalafin.date.DatePeriodOpsFunc._
 import org.scalafin.date.DatePeriod
 import org.scalafin.date.DatePeriodSplitter
+import ScheduleImports._
 
 class Schedule[+T <: DatePeriod] private (val periods: Seq[T])(implicit periodSplitter: DatePeriodSplitter[T]) {
 

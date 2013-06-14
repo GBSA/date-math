@@ -2,10 +2,10 @@ package org.scalafin.date
 
 
 import org.joda.time.DateMidnight
-
-import DatePeriodOpsFunc._
-import DatePeriodSplitter._
 import org.specs2.mutable.Specification
+
+import org.scalafin.scheduler.ScheduleImports._
+import DatePeriodSplitter._
 
 /**
  * Created with IntelliJ IDEA.

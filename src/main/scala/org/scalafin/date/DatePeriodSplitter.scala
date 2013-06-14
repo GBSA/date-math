@@ -41,23 +41,6 @@ trait DatePeriodSplitter[T <: DatePeriod] {
     }
   }
 }
-
-trait DatePeriodOps[T <: DatePeriod] {
-  def splitter: DatePeriodSplitter[T]
-  def self: T
-  def split(date: DateMidnight): Option[(T, T)] = splitter.split(self, date)
-  def cut(dates: Seq[DateMidnight]): Seq[T] = splitter.cut(self, dates)
-}
-
-trait DatePeriodOpsFunc {
-  implicit def toDatePeriodOps[T <: DatePeriod](t: T)(implicit splitter0: DatePeriodSplitter[T]) = new DatePeriodOps[T] {
-    val self = t
-    val splitter = splitter0
-  }
-}
-
-object DatePeriodOpsFunc extends DatePeriodOpsFunc
-
 object DatePeriodSplitter {
   implicit val lensSimplePeriod = Lens.lensu[SimplePeriod, DateRange]((period, dateRange) => period.copy(dateRange = dateRange), _.dateRange)
 
@@ -75,7 +58,23 @@ object DatePeriodSplitter {
       }
     }
   }
-  
+
 }
+
+trait DatePeriodOps[T <: DatePeriod] {
+  def splitter: DatePeriodSplitter[T]
+  def self: T
+  def split(date: DateMidnight): Option[(T, T)] = splitter.split(self, date)
+  def cut(dates: Seq[DateMidnight]): Seq[T] = splitter.cut(self, dates)
+}
+
+trait DatePeriodOpsFunc {
+  implicit def toDatePeriodOps[T <: DatePeriod](t: T)(implicit splitter0: DatePeriodSplitter[T]) = new DatePeriodOps[T] {
+    val self = t
+    val splitter = splitter0
+  }
+}
+
+object DatePeriodOpsFunc extends DatePeriodOpsFunc
 
 class InvalidSplitDateException(val message: String) extends Exception(message)
