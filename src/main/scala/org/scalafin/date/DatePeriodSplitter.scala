@@ -1,8 +1,6 @@
 package org.scalafin.date
 
 import org.joda.time.DateMidnight
-import org.scalafin.accrual.NotionalPeriod
-import org.scalafin.accrual.AccrualPeriod
 import scalaz.Lens
 import scalaz.Validation
 import scalaz.Scalaz._
@@ -46,8 +44,6 @@ object DatePeriodOpsFunc extends DatePeriodOpsFunc
 object DatePeriodSplitter {
 
   implicit val lensSimplePeriod = Lens.lensu[SimplePeriod, DateRange]((period, dateRange) => period.copy(dateRange = dateRange), _.dateRange)
-  implicit val lensNotionalPeriod = Lens.lensu[NotionalPeriod, DateRange]((period, dateRange) => period.copy(dateRange = dateRange), _.dateRange)
-  //  implicit val lensAccrualPeriod = Lens.lensu[AccrualPeriod,DateRange]( (period,dateRange) => period.copy(dateRange=dateRange),_.dateRange)
 
   implicit def splitter[T <: DatePeriod](implicit lens: Lens[T, DateRange]): DatePeriodSplitter[T] = new DatePeriodSplitter[T] {
     def splitNative(period: T, date: DateMidnight): (Validation[DateRangeException, T], Validation[DateRangeException, T]) = {
