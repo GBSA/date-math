@@ -17,35 +17,35 @@ package org.scalafin.convention
  * @author jeremy.nguyenxuan
  *
  */
-sealed abstract class StubType(val longStub: Boolean, val shortStub: Boolean)
+sealed abstract class StubType
 
 /**
  * The short stub period is at the start of the schedule, e.g.:
  *
  * X.X...X...X...X...X...X...X
  */
-case object SHORT_FIRST extends StubType(false, true)
+case object SHORT_FIRST extends StubType
 
 /**
  * The short stub period is at the end of the schedule
  *
  * X...X...X...X...X...X...X.X
  */
-case object SHORT_LAST extends StubType(false, true)
+case object SHORT_LAST extends StubType
 
 /**
  * The long stub period is at the start of the schedule, e.g.:
  *
  * X.....X...X...X...X...X...X
  */
-case object LONG_FIRST extends StubType(true, false)
+case object LONG_FIRST extends StubType
 
 /**
  * The long stub period is at the end of the schedule
  *
  * X...X...X...X...X...X.....X
  */
-case object LONG_LAST extends StubType(true, false)
+case object LONG_LAST extends StubType
 
 /**
  * There should be no stub period, if the frequency doesn't exactly fit the
@@ -53,4 +53,4 @@ case object LONG_LAST extends StubType(true, false)
  *
  * X...X...X...X...X...X...X
  */
-case object NONE extends StubType(false, false)
+case object NONE extends StubType
