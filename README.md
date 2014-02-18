@@ -41,6 +41,7 @@ Credits
 ----------
 
 To:
+
 1. Morgan Brown Consultancy LTD for providing the original implementation of the manipulation functions
 2. Kenji Yoshida (@xuwei-k) , author of [nscala-time](https://github.com/nscala-time/nscala-time)  , A new Scala wrapper for Joda Time based on scala-time, whose ideas inspired a part of the code 
  
