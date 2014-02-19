@@ -1,0 +1,8 @@
+## build
+**/libraries
+.idea
+**/**/*.class
+**/target
+*.class
+target
+*.iml
