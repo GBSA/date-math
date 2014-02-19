@@ -24,7 +24,6 @@ package com.mbc.jfin.daycount.impl.calculator;
 
 import com.mbc.jfin.daycount.impl.DaycountCalculator;
 import com.mbc.jfin.daycount.impl.InvalidReferencePeriodException;
-import com.mbc.jfin.holiday.HolidayCalendar;
 import com.mbc.jfin.schedule.SchedulePeriod;
 import com.mbc.jfin.util.DateUtils;
 import org.joda.time.LocalDate;
@@ -39,11 +38,11 @@ import org.joda.time.Years;
  */
 public class ISMAActualActualDaycountCalculator implements DaycountCalculator {
 
-    public double calculateDaycountFraction(SchedulePeriod schedulePeriod, HolidayCalendar calendar) {
-        return  calculateDaycountFraction(schedulePeriod);
-    }
+//    public double calculateDaycountFraction(SchedulePeriod schedulePeriod) {
+//        return  calculateDaycountFraction(schedulePeriod);
+//    }
 
-    private double calculateDaycountFraction(SchedulePeriod schedulePeriod) {
+    public double calculateDaycountFraction(SchedulePeriod schedulePeriod) {
 
         if(schedulePeriod.getStart().equals(schedulePeriod.getEnd())) return 0;
 

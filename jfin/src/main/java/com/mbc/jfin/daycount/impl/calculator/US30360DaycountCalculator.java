@@ -23,7 +23,6 @@
 package com.mbc.jfin.daycount.impl.calculator;
 
 import com.mbc.jfin.daycount.impl.DaycountCalculator;
-import com.mbc.jfin.holiday.HolidayCalendar;
 import com.mbc.jfin.schedule.SchedulePeriod;
 import com.mbc.jfin.util.DateUtils;
 
@@ -35,7 +34,7 @@ import com.mbc.jfin.util.DateUtils;
  */
 public class US30360DaycountCalculator implements DaycountCalculator {
 
-    public double calculateDaycountFraction(SchedulePeriod period, HolidayCalendar calendar) {
+    public double calculateDaycountFraction(SchedulePeriod period) {
 
         if(period.getStart().equals(period.getEnd())) return 0;
 

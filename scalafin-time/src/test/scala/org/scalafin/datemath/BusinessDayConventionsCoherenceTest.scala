@@ -10,7 +10,6 @@ import org.scalacheck.Prop
 import com.mbc.jfin.holiday.impl.DefaultDateAdjustmentServiceImpl
 
 
-
 /**
  * Created with IntelliJ IDEA.
  * Author: Edmondo Porcu
@@ -18,11 +17,12 @@ import com.mbc.jfin.holiday.impl.DefaultDateAdjustmentServiceImpl
  * Time: 15:48
  *
  */
-class BusinessDayConventionsCoherenceTest extends Specification with ScalaCheck
-																																with FragmentBuildingTools
-																																with CalendarsGenerators
-																																with ScalafinDateMathTestInstances
-																																with BusinessDayConventionTupleMatchers {
+class BusinessDayConventionsCoherenceTest extends Specification
+                                                  with ScalaCheck
+                                                  with FragmentBuildingTools
+                                                  with CalendarsGenerators
+                                                  with ScalafinDateMathTestInstances
+                                                  with BusinessDayConventionTupleMatchers {
 	val tuple1 = BusinessDayConventions.UNADJUSTED -> JFinBusinessDayConvention.UNADJUSTED
 
 	val tuple2 = BusinessDayConventions.FOLLOWING -> JFinBusinessDayConvention.FOLLOWING

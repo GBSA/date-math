@@ -23,7 +23,6 @@
 package com.mbc.jfin.daycount.impl.calculator;
 
 import com.mbc.jfin.daycount.impl.DaycountCalculator;
-import com.mbc.jfin.holiday.HolidayCalendar;
 import com.mbc.jfin.schedule.SchedulePeriod;
 import com.mbc.jfin.util.DateUtils;
 
@@ -34,7 +33,7 @@ import com.mbc.jfin.util.DateUtils;
  * Time: 09:00
  */
 public class Actual365FixedDaycountCalculator implements DaycountCalculator {
-    public double calculateDaycountFraction(SchedulePeriod period, HolidayCalendar calendar) {
+    public double calculateDaycountFraction(SchedulePeriod period) {
         int daysBetween = DateUtils.daysBetween(period.getStart(), period.getEnd());
         if(daysBetween==0) return 0;
         return daysBetween / 365.0d;

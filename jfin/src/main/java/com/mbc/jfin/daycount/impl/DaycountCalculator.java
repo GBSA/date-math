@@ -22,7 +22,6 @@
 
 package com.mbc.jfin.daycount.impl;
 
-import com.mbc.jfin.holiday.HolidayCalendar;
 import com.mbc.jfin.schedule.SchedulePeriod;
 
 /**
@@ -32,5 +31,5 @@ import com.mbc.jfin.schedule.SchedulePeriod;
  * Time: 08:34
  */
 public interface DaycountCalculator {
-    public double calculateDaycountFraction(SchedulePeriod period, HolidayCalendar calendar);
+    public double calculateDaycountFraction(SchedulePeriod period);
 }

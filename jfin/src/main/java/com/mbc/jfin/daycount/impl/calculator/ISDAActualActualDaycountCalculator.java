@@ -23,7 +23,6 @@
 package com.mbc.jfin.daycount.impl.calculator;
 
 import com.mbc.jfin.daycount.impl.DaycountCalculator;
-import com.mbc.jfin.holiday.HolidayCalendar;
 import com.mbc.jfin.schedule.SchedulePeriod;
 import com.mbc.jfin.util.DateUtils;
 import org.joda.time.LocalDate;
@@ -42,7 +41,7 @@ public class ISDAActualActualDaycountCalculator implements DaycountCalculator {
 
 
 
-    public double calculateDaycountFraction(SchedulePeriod period, HolidayCalendar calendar) {
+    public double calculateDaycountFraction(SchedulePeriod period) {
 
         if(period.getStart().equals(period.getEnd())) return 0;
 

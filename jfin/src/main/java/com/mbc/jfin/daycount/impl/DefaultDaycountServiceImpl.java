@@ -64,6 +64,6 @@ public class DefaultDaycountServiceImpl implements DaycountService {
         }
 
 
-        return calculator.calculateDaycountFraction(period, calendar);
+        return calculator.calculateDaycountFraction(period);
     }
 }

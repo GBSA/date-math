@@ -49,7 +49,7 @@ public class Actual360DaycountCalculatorTest extends TestCase {
         Schedule schedule = scheduleService.generateSchedule(new LocalDate(2011,1,10), new LocalDate(2020,1,10), Months.THREE, StubType.NONE);
 
         for(SchedulePeriod period: schedule) {
-            assertEquals(0.25d, calculator.calculateDaycountFraction(period, null), 0.01d);
+            assertEquals(0.25d, calculator.calculateDaycountFraction(period), 0.01d);
         }
     }
 

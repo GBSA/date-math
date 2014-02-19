@@ -19,7 +19,7 @@ import org.joda.time.{DateTime, LocalDate}
  */
 class CoherenceTests extends Specification {
 
-  override def is: Fragments = include(new BusinessDayConventionsCoherenceTests)
+  override def is: Fragments = include(new BusinessDayConventionsCoherenceTest)
 
 }
 
