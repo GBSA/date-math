@@ -37,8 +37,6 @@ class DefaultIntervalBuilderTest extends Specification with IntervalGenerators w
 	implicit val intervalBuilder = DefaultIntervalBuilder
 
 	def example[T](implicit ordering:Ordering[T], arbitrary:Arbitrary[T]) = {
-		implicit val singleGenn = arbitrary.arbitrary
-		implicit val intervalGenerators = intervalArbitrary[T,Interval]
 		Prop.forAll{
 			(t:Validation[InvalidIntervalException,Interval[T]]) => t must beLike{
 				case Success(_) => ok

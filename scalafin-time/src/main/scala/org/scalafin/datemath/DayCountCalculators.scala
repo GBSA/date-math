@@ -3,20 +3,21 @@ package org.scalafin.datemath
 import org.joda.time.{ReadableDateTime, DateMidnight, DateTimeConstants}
 import org.scalafin.utils.Interval
 import org.scalafin.date._
-import org.scalafin.datemath.utils.DateDsl._
-
+import org.scalafin.datemath.utils.OrderingImplicits._
 
 
 object DayCountCalculators{
 
   import org.scalafin.datemath.utils.RichJodaTimeExtensions._
 
+	private implicit def toDateTime(readableDateTime:ReadableDateTime) = readableDateTime.toDateTime
+
 
   trait NormalizedActualDayCountCalculator extends DayCountCalculator{
     
     def normalizationFactor:Double
 
-    override def calculateDayCountFraction(period: FinancialPeriod[ReadableDateTime]): Double = (period.actual.start daysTo period.actual.end) / normalizationFactor
+    override def calculateDayCountFraction(period: PaymentPeriod[ReadableDateTime]): Double = (period.actual.start daysTo period.actual.end) / normalizationFactor
 
   }
 
@@ -67,7 +68,7 @@ object DayCountCalculators{
     private def tau(interval: Interval[ReadableDateTime]):Double = (interval.start daysTo interval.end) / diy(interval)
 
 
-    override def calculateDayCountFraction(period: FinancialPeriod[ReadableDateTime]): Double = {
+    override def calculateDayCountFraction(period: PaymentPeriod[ReadableDateTime]): Double = {
       val splittedPeriods = period.actual splitInArrear previousDateBuilder
       val splittedTaus = splittedPeriods map tau
       splittedTaus.sum
@@ -80,10 +81,8 @@ object DayCountCalculators{
 
   case object EU30360DayCountCalculator extends DayCountCalculator {
 
-    import org.scalafin.date._
 
-
-    override def calculateDayCountFraction(period: FinancialPeriod[ReadableDateTime]): Double = {
+    override def calculateDayCountFraction(period: PaymentPeriod[ReadableDateTime]): Double = {
       val (year1, month1, day1): (Int, Int, Int) = period.actual.start.asYearMonthDayTuple
       val (year2, month2, day2): (Int, Int, Int) = period.actual.end.asYearMonthDayTuple
       var numerator = 360 * (year2 - year1) + 30 * (month2 - month1) + day2 - day1
@@ -98,7 +97,7 @@ object DayCountCalculators{
   case object ISDAActualActualDayCountCalculator extends DayCountCalculator {
 
 
-    override def calculateDayCountFraction(period: FinancialPeriod[ReadableDateTime]): Double = {
+    override def calculateDayCountFraction(period: PaymentPeriod[ReadableDateTime]): Double = {
       val splittedPeriods = period.actual splitInArrear previousDateBuilder
       val taus = splittedPeriods map tau
       taus.sum
@@ -110,7 +109,7 @@ object DayCountCalculators{
         val date = readableDateTime.toDateTime
         date minusDays  date.dayOfYear.maxValue
     }
-    private def tau(dateRange: DateInterval):Double = {
+    private def tau(dateRange: Interval[ReadableDateTime]):Double = {
       val maxDaysInFirstYear = dateRange.start.toDateTime.dayOfYear().maxValue
       (dateRange.start daysTo  dateRange.end) / maxDaysInFirstYear
     }
@@ -122,7 +121,7 @@ object DayCountCalculators{
   case object IT30360DayCountCalculator extends DayCountCalculator {
 
 
-    override def calculateDayCountFraction(period: FinancialPeriod[ReadableDateTime]): Double = {
+    override def calculateDayCountFraction(period: PaymentPeriod[ReadableDateTime]): Double = {
       val dateRange = period.actual
       val (year1, month1, day1): (Int, Int, Int) = dateRange.start.asYearMonthDayTuple
       val (year2, month2, day2): (Int, Int, Int) = dateRange.end.asYearMonthDayTuple
@@ -143,7 +142,7 @@ object DayCountCalculators{
   case object US30360DayCountCalculator extends DayCountCalculator {
 
 
-    override def calculateDayCountFraction(period: FinancialPeriod[ReadableDateTime]): Double = {
+    override def calculateDayCountFraction(period: PaymentPeriod[ReadableDateTime]): Double = {
       val dateRange = period.actual
       val (year1, month1, _): (Int, Int, Int) = dateRange.start.asYearMonthDayTuple
       val (year2, month2, _): (Int, Int, Int) = dateRange.end.asYearMonthDayTuple
@@ -157,7 +156,7 @@ object DayCountCalculators{
       date.getDayOfMonth == date.dayOfMonth.maxValue && date.getMonthOfYear == DateTimeConstants.FEBRUARY
     }
 
-    private def februaryAdjustedDates(dateRange: DateInterval): (Int, Int) = {
+    private def februaryAdjustedDates(dateRange: Interval[ReadableDateTime]): (Int, Int) = {
       if (isLastDayOfFebruary(dateRange.start))
         if (isLastDayOfFebruary(dateRange.end))
           (30, 30)
@@ -181,7 +180,7 @@ object DayCountCalculators{
 
   case class Business252DayCountCalculator(hc: HolidayCalendar) extends DayCountCalculator{
 
-    override def calculateDayCountFraction(period: FinancialPeriod[ReadableDateTime]): Double = period.actual.businessDaysAccordingTo(hc) / 252.0
+    override def calculateDayCountFraction(period: PaymentPeriod[ReadableDateTime]): Double = period.actual.businessDaysAccordingTo(hc) / 252.0
 
   }
 
@@ -190,7 +189,7 @@ object DayCountCalculators{
   case class ISMAActualActualDayCountCalculator(frequency: Frequency with ExactFitInYear) extends DayCountCalculator {
 
 
-    override def calculateDayCountFraction(period: FinancialPeriod[ReadableDateTime]): Double = {
+    override def calculateDayCountFraction(period: PaymentPeriod[ReadableDateTime]): Double = {
       val dateRange = period.actual
       val firstCouponDate = frequency add (1, dateRange.start)
       val daysInPeriod = dateRange.start daysTo firstCouponDate

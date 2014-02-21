@@ -30,20 +30,20 @@ class DatePeriodOrderingsTest extends Specification with ScalaCheck with JodaTim
 
 
 
-	override  def is = {
+	override  def is = s2"""
 
-	"Start Point ordering"                                ^
-			"should work correctly on a known example "       ! e1^
-		  "should work correctly on random generated data"  ! e2^
-																												p^
-	"Mid point ordering"                                  ^
-			"should work correctly on a known example "       ! e3^
-																												p^
+	"Start Point ordering"
+			"should work correctly on a known example "       $e1
+		  "should work correctly on random generated data"  $e2
+
+	"Mid point ordering"
+			"should work correctly on a known example "       $e3
+
 	"End point ordering" ^
-		"should work correctly on a known example"          ! e4^
-		"should work correctly on random generated data"    ! e5
+		"should work correctly on a known example"          $e4
+		"should work correctly on random generated data"    $e5
 
-	}
+	"""
 
 	def e1 = {
 		import StartPointOrdering._

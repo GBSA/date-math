@@ -14,14 +14,32 @@ package object datemath {
 
   type DateInterval = Interval[ReadableDateTime]
 
-  case class FinancialPeriod[T<:ReadableInstant] (actual: Interval[T], reference: Option[Interval[T]] = None) {
+	trait PaymentPeriod[A]{
 
-    override lazy val toString: String = {
-      reference match{
-        case Some(ref) => s"Actual: $actual , Reference: $ref"
-        case None => actual.toString
-      }
-    }
+		self =>
+
+		def actual:Interval[A]
+
+		def reference: Option[Interval[A]]
+
+		def asMoreGeneric[B>:A](implicit ordering:Ordering[B]) = new PaymentPeriod[B] {
+
+			def actual = self.actual.asMoreGeneric[B]
+
+			def reference = self.reference.map{_.asMoreGeneric[B]}
+		}
+
+	}
+	
+  case class ScheduledFinancialPeriod[T<:ReadableInstant] (actual: Interval[T], reference: Option[Interval[T]] = None) extends PaymentPeriod[T] {
+
+	  override lazy val toString: String = {
+		  reference match{
+			  case Some(ref) => s"Actual: $actual , Reference: $ref"
+			  case None => actual.toString
+		  }
+	  }
+
 
   }
 
@@ -60,9 +78,9 @@ package object datemath {
 
   trait DayCountCalculator {
 
-    def calculateDayCountFraction(period: FinancialPeriod[ReadableDateTime]): Double
+    def calculateDayCountFraction(period: PaymentPeriod[ReadableDateTime]): Double
 
-    def apply(period: FinancialPeriod[ReadableDateTime]): Double = calculateDayCountFraction(period)
+    def apply(period: PaymentPeriod[ReadableDateTime]): Double = calculateDayCountFraction(period)
 
   }
 

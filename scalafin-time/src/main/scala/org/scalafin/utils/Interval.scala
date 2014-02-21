@@ -4,6 +4,7 @@ import scalaz.{Failure, Success, Validation}
 import Ordering.Implicits._
 import org.joda.time.ReadableInstant
 import org.scalafin.utils
+import scala.annotation.tailrec
 
 
 /**
@@ -32,14 +33,20 @@ sealed trait Interval[A]{
   def contains[B>:A](point: B)(implicit ordering:Ordering[B]): Boolean = start < point && end > point
 
   def splitInArrear[B<:A](previousEndGenerator: (A) => B): Seq[Interval[A]] = {
-    val previousInstant = previousEndGenerator(end)
-    if (previousInstant < start)
-      Seq(this)
-    else {
-      val currentInterval = selfBuilder unsafe (previousInstant, end)
-      val previousInterval = selfBuilder unsafe (start, previousInstant)
-      currentInterval +: (previousInterval splitInArrear previousEndGenerator)
-    }
+	  @tailrec
+	  def splitInArrear(currentInterval:Interval[A], currentSplits:Seq[Interval[A]]):Seq[Interval[A]] = {
+		  val previousInstant = previousEndGenerator(end)
+		  require(previousInstant < end, "The generator does not generate new dates in arrear, the loop will last forever")
+		  if (previousInstant <= start)
+			  currentInterval +: currentSplits
+		  else {
+			  val lastPartOfCurrentInterval = selfBuilder unsafe (previousInstant, end)
+			  val firstPartOfCurrentInterval = selfBuilder unsafe (start, previousInstant)
+			  splitInArrear(firstPartOfCurrentInterval, lastPartOfCurrentInterval +: currentSplits)
+		  }
+	  }
+	  splitInArrear(this, Seq.empty[Interval[A]])
+
 
   }
 
@@ -103,10 +110,7 @@ trait DefaultIntervalBuilder extends IntervalBuilder[Interval]{
 
 }
 
-object IntervalBuilder  extends DefaultIntervalBuilder{
-
-
-
+object DefaultIntervalBuilder  extends DefaultIntervalBuilder{
 
 
 }

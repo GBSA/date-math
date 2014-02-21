@@ -43,14 +43,13 @@ class BusinessDayConventionsCoherenceTest extends Specification
 
 	def testTuple(tuple: (BusinessDayConvention, JFinBusinessDayConvention)) = {
 		val (scalafinDateMathConvention, jfinConvention) = tuple
-		s"jfin.$jfinConvention and scalafin-datemath.$scalafinDateMathConvention must adjust dates equally " ! Prop.forAll(mbcHolidayCalendarGen, arbitrary[Date]) {
-			(calendar, date) => {
-				implicit val context = AdjustmentContext(calendar,
-					service)
-				tuple must produceIdenticalAdjustmentOn(date)
+		val exampleName = s"jfin.$jfinConvention and scalafin-datemath.$scalafinDateMathConvention must adjust dates equally "
+		 exampleName ! Prop.forAll{
+									(calendar:SimpleMbcHolidayCalendar, date:Date) =>
+									implicit val context = AdjustmentContext(calendar,service)
+									tuple must produceIdenticalAdjustmentOn(date)
 
 
-			}
 		}
 	}
 

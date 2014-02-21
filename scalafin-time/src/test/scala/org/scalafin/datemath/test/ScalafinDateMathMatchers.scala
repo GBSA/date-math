@@ -1,12 +1,14 @@
 package org.scalafin.datemath.test
 
 import org.specs2.text.Sentences
-import org.joda.time.{DateTime, LocalDate, ReadablePartial, ReadableDateTime}
+import org.joda.time._
 import org.specs2.matcher.{MustMatchers, MatchResult, Expectable, Matcher}
-import java.util.Date
-import org.scalafin.datemath.{HolidayCalendar, BusinessDayConvention}
+import java.util.{GregorianCalendar, Date}
+import org.scalafin.datemath.{PaymentPeriod, DayCountCalculator, HolidayCalendar, BusinessDayConvention}
 import com.mbc.jfin.holiday.{BusinessDayConvention => JFinBusinessDayConvention, HolidayCalendar => MbcHolidaycalendar, DateAdjustmentService}
-
+import com.mbc.jfin.daycount.impl.{DaycountCalculator => JFinDaycountCalculator}
+import com.mbc.jfin.schedule.SchedulePeriod
+import org.scalafin.datemath.utils.{OrderingImplicits, Generifiers}
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,77 +20,108 @@ import com.mbc.jfin.holiday.{BusinessDayConvention => JFinBusinessDayConvention,
 
 //TODO: check naming conventions
 //TODO: add scalarestyle maven plugin
-trait ScalafinDateMathMatchers {
-
+trait ScalafinDateMathMatchers extends JodaTimeDateMatchers
+                                       with BusinessDayConventionTupleMatchers
+                                       with DayCountConventionTupleMatchers {
 
 
 }
 
-trait JodaTimeDateMatchers extends Sentences{
+trait JodaTimeDateMatchers extends Sentences {
 
-  def beEquivalentTo(readableDateTime: ReadableDateTime): Matcher[ReadablePartial] = new Matcher[ReadablePartial] {
-    override def apply[S <: ReadablePartial](t: Expectable[S]): MatchResult[S] = {
-      val partial = t.value
-      val dateTime = partial toDateTime readableDateTime
-      val matchResult = dateTime compareTo readableDateTime
-      val message = s"$dateTime is equal to $readableDateTime"
-      result(matchResult == 0, message, negateSentence(message), t)
+	def beEquivalentTo(readableDateTime: ReadableDateTime): Matcher[ReadablePartial] = new Matcher[ReadablePartial] {
+		override def apply[S <: ReadablePartial](t: Expectable[S]): MatchResult[S] = {
+			val partial = t.value
+			val dateTime = partial toDateTime readableDateTime
+			val matchResult = dateTime compareTo readableDateTime
+			val message = s"$dateTime is equal to $readableDateTime"
+			result(matchResult == 0, message, negateSentence(message), t)
 
 
-    }
-  }
+		}
+	}
 
 }
 
 trait AdjustmentContext {
 
-  implicit def mbcHolidayCalendar:MbcHolidaycalendar
+	implicit def mbcHolidayCalendar: MbcHolidaycalendar
 
-  implicit def scalaFinDateMathHolidayCalendar:HolidayCalendar
+	implicit def scalaFinDateMathHolidayCalendar: HolidayCalendar
 
-  implicit def adjustmentService:DateAdjustmentService
+	implicit def adjustmentService: DateAdjustmentService
 
 }
 
 object AdjustmentContext {
 
-  def apply[A<:MbcHolidaycalendar](cal:A, service:DateAdjustmentService)
-    (implicit conversion: A => HolidayCalendar):AdjustmentContext = new AdjustmentContext {
+	def apply[A <: MbcHolidaycalendar](cal: A, service: DateAdjustmentService)
+		(implicit conversion: A => HolidayCalendar): AdjustmentContext = new AdjustmentContext {
 
-    override implicit val adjustmentService: DateAdjustmentService = service
+		override implicit val adjustmentService: DateAdjustmentService = service
 
-    override implicit val scalaFinDateMathHolidayCalendar: HolidayCalendar = conversion(cal)
+		override implicit val scalaFinDateMathHolidayCalendar: HolidayCalendar = conversion(cal)
 
-    override implicit val mbcHolidayCalendar: MbcHolidaycalendar = cal
-  }
+		override implicit val mbcHolidayCalendar: MbcHolidaycalendar = cal
+
+	}
 
 }
 
 
+trait BusinessDayConventionTupleMatchers extends JodaTimeDateMatchers with MustMatchers {
 
 
-trait BusinessDayConventionTupleMatchers extends JodaTimeDateMatchers with MustMatchers{
+	def produceIdenticalAdjustmentOn(date: Date)(implicit adjustmentContext: AdjustmentContext): Matcher[(BusinessDayConvention, JFinBusinessDayConvention)] = new
+			Matcher[(BusinessDayConvention, JFinBusinessDayConvention)] {
+
+		val localDate = new LocalDate(date.getTime)
+
+		val dateTime = new DateTime(date.getTime)
+
+		import adjustmentContext._
+
+		override def apply[S <: (BusinessDayConvention, JFinBusinessDayConvention)](t: Expectable[S]): MatchResult[S] = {
+
+			val (scalafinDateMathConvention, jfinConvention) = t.value
+			val jfinResultedAdjustDate = adjustmentContext.adjustmentService adjust(localDate, jfinConvention, adjustmentContext.mbcHolidayCalendar)
+			val scalafinAdjustedDate = scalafinDateMathConvention adjust dateTime
+			val matchResult = jfinResultedAdjustDate must beEquivalentTo(scalafinAdjustedDate)
+			val message = s"jfin.$jfinConvention and scalafin-datemath.$scalafinDateMathConvention adjust date $localDate on calendar $mbcHolidayCalendar : ${matchResult.message}"
+			result(matchResult.isSuccess, message, negateSentence(message), t)
+
+		}
+
+	}
+
+
+}
+
+trait DayCountConventionTupleMatchers extends JodaTimeDateMatchers with MustMatchers with Generifiers with OrderingImplicits{
 
 
 
-  def produceIdenticalAdjustmentOn(date:Date)(implicit adjustmentContext:AdjustmentContext):Matcher[(BusinessDayConvention, JFinBusinessDayConvention)] = new Matcher[(BusinessDayConvention, JFinBusinessDayConvention)]{
+	implicit def periodAs[T<:ReadableInstant](period:PaymentPeriod[T]):SchedulePeriod = {
+		implicit def toLocalDate(t:T):LocalDate = new LocalDate(t.getMillis,t.getChronology)
+		val start:LocalDate = period.actual.start
+		val end:LocalDate = period.actual.end
+		val referenceStart = period.reference map {referencePeriod => toLocalDate(referencePeriod.start)}
+		val referenceEnd  = period.reference map { referencePeriod => toLocalDate(referencePeriod.end)}
+		new SchedulePeriod(start,end,referenceStart.getOrElse(null),referenceEnd.getOrElse(null))
+	}
 
-    val localDate = new LocalDate(date.getTime)
+	def computeIdenticalDayCountFor[T<:ReadableDateTime](period:PaymentPeriod[T]):Matcher[(DayCountCalculator,JFinDaycountCalculator)] =
+		new Matcher[(DayCountCalculator,JFinDaycountCalculator)]{
 
-    val dateTime = new DateTime(date.getTime)
+			override def apply[S <: (DayCountCalculator, JFinDaycountCalculator)](t: Expectable[S]): MatchResult[S] = {
+				val (scalafinDateMathCalculator, jfinCalculator) = t.value
+				val scalaFinDateMathResult = scalafinDateMathCalculator calculateDayCountFraction period
+				val jfinCalculatorResult =  jfinCalculator calculateDaycountFraction period
+				val matchResult = jfinCalculatorResult must_== scalaFinDateMathResult
+				val message = s"jfin.$jfinCalculator and scalafin-datemath.$scalafinDateMathCalculator adjust date $period to $scalaFinDateMathResult and $jfinCalculatorResult: ${matchResult.message}"
+				result(matchResult.isSuccess, message, negateSentence(message), t)
 
-    import adjustmentContext._
-
-    override def apply[S <: (BusinessDayConvention, JFinBusinessDayConvention)](t: Expectable[S]): MatchResult[S] = {
-      val (scalafinDateMathConvention,jfinConvention) = t.value
-      val jfinResultedAdjustDate = adjustmentContext.adjustmentService adjust (localDate, jfinConvention, adjustmentContext.mbcHolidayCalendar)
-      val scalafinAdjustedDate = scalafinDateMathConvention adjust dateTime
-      val matchResult = jfinResultedAdjustDate must beEquivalentTo(scalafinAdjustedDate)
-      val message =  s"jfin.$jfinConvention and scalafin-datemath.$scalafinDateMathConvention adjust date $localDate on calendar $mbcHolidayCalendar : ${matchResult.message}"
-      result(matchResult.isSuccess,message,negateSentence(message),t)
-    }
-
-  }
-
+			}
+		}
 
 }

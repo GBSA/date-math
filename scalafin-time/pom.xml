@@ -14,7 +14,7 @@
     <properties>
         <surefire.settings>-Dspecs2.console</surefire.settings>
         <scala.version>2.10.1</scala.version>
-        <specs2.version>2.3.7</specs2.version>
+        <specs2.version>2.3.8</specs2.version>
         <scalacheck.version>1.11.1</scalacheck.version>
     </properties>
 

@@ -2,7 +2,6 @@ package org.scalafin.datemath
 
 import org.joda.time.ReadableDateTime
 import scala.annotation.tailrec
-import org.scalafin.datemath.utils.DateDsl._
 
 
 
@@ -22,6 +21,8 @@ import org.scalafin.datemath.utils.DateDsl._
  */
 
 object BusinessDayConventions {
+
+	private implicit def toDateTime(readableDateTime:ReadableDateTime) = readableDateTime.toDateTime
 
   /**
    * Do not adjust.

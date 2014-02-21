@@ -1,17 +1,9 @@
 package org.scalafin.datemath.test
 
 
-import java.util.Date
-import org.joda.time.{DateTime, ReadableDateTime, DateTimeConstants, LocalDate}
+import org.joda.time.{ReadableDateTime, DateTimeConstants, LocalDate}
 import org.scalafin.datemath.HolidayCalendar
 import com.mbc.jfin.holiday.{HolidayCalendar => MbcHolidaycalendar}
-import org.specs2.{Specification, ScalaCheck}
-import org.scalacheck.{Arbitrary, Prop}
-import Arbitrary._
-import org.specs2.matcher.Parameters
-import org.scalacheck.util.Pretty
-import org.scalafin.date
-import org.scalafin
 
 /**
  * Created with IntelliJ IDEA.
@@ -21,38 +13,26 @@ import org.scalafin
  *
  */
 
-trait ScalafinDateMathTestInstancesTestImplicits {
-
-  implicit def toLocalDate(javaDate: Date): LocalDate = new LocalDate(javaDate.getTime)
-
-
-
-
-}
 
 trait ScalafinDateMathMocks {
 
-  trait SimpleMbcHolidayCalendar extends MbcHolidaycalendar with ScalafinDateMathTestInstancesTestImplicits {
+  trait SimpleMbcHolidayCalendar extends MbcHolidaycalendar {
 
 	  self =>
 
-    def listOfHolidays: List[Date]
-
+    def listOfHolidays: List[LocalDate]
 
 
     override def isWeekend(date: LocalDate): Boolean = date.getDayOfWeek == DateTimeConstants.SATURDAY || date.getDayOfWeek == DateTimeConstants.SUNDAY
 
-
-    override def isHoliday(date: LocalDate): Boolean = listOfHolidays exists {
-      javaDate => (javaDate compareTo date) == 0
-    }
+    override def isHoliday(date: LocalDate): Boolean = listOfHolidays exists { _ == date }
 
     override def toString = s"SimpleMbcHolidayCalendar backed by $listOfHolidays"
 
 
     def toScalafinDateMathCalendar: HolidayCalendar = new HolidayCalendar {
 
-	    implicit def toLocalDate(date: ReadableDateTime): LocalDate = new LocalDate(date.getMillis)
+	    private implicit def toLocalDate(date: ReadableDateTime): LocalDate = new LocalDate(date.getMillis)
 
       override def isWeekend(date: ReadableDateTime): Boolean = self isWeekend date
 
@@ -66,7 +46,7 @@ trait ScalafinDateMathMocks {
 
 }
 
-trait ScalafinDateMathTestInstances extends ScalafinDateMathTestInstancesTestImplicits with ScalafinDateMathMocks {
+trait ScalafinDateMathTestInstances extends ScalafinDateMathMocks {
 
   implicit def toScalafinDateMathCalendar(mbcHolidayCalendar: SimpleMbcHolidayCalendar): HolidayCalendar = mbcHolidayCalendar.toScalafinDateMathCalendar
 

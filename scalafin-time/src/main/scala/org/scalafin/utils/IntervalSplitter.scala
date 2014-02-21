@@ -13,12 +13,12 @@ import scalaz.{Success, Failure,  Validation}
  */
 trait IntervalSplitter {
 
-  private def unsafeSplit[A,C[+_]<:Interval[_]](period:  Interval[A], splitInstant: A)(implicit intervalBuilder:IntervalBuilder[C]): (C[A], C[A]) = {
-    split(period,splitInstant) match{
-      case Success(successTuple) => successTuple
-      case Failure(x)  => throw x
-    }
-  }
+//  private def unsafeSplit[A,C[+_]<:Interval[_]](period:  Interval[A], splitInstant: A)(implicit intervalBuilder:IntervalBuilder[C]): (C[A], C[A]) = {
+//    split(period,splitInstant) match{
+//      case Success(successTuple) => successTuple
+//      case Failure(x)  => throw x
+//    }
+//  }
 
   def split[A, B[+_]<:Interval[_]](interval:  Interval[A], splitPoint: A)(implicit intervalBuilder:IntervalBuilder[B]): Validation[InvalidIntervalException, ( B[A],  B[A])] ={
     import interval._

@@ -6,7 +6,7 @@ import org.scalafin.date._
 
 object Frequencies {
 
-  import org.scalafin.datemath.utils.DateDsl._
+	private implicit def toDateTime(readableDateTime:ReadableDateTime) = readableDateTime.toDateTime
 
 
   val values = Seq(DAILY,WEEKLY,LUNAR_MONTHLY,MONTHLY,QUARTERLY,SEMI_ANNUALLY,ANNUALLY)

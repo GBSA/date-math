@@ -1,9 +1,10 @@
 package org.scalafin.datemath.utils
 
 import org.joda.time.field.AbstractReadableInstantFieldProperty
-import org.joda.time.{DateMidnight, ReadableInstant, ReadableDateTime}
+import org.joda.time._
 import org.scalafin.datemath._
 import scala.annotation.tailrec
+import org.scalafin.utils.Interval
 
 
 /**
@@ -29,18 +30,27 @@ trait OrderingImplicits {
 
 }
 
+trait Generifiers {
+
+
+	implicit def generifyPaymentPeriod[A,B>:A](paymentPeriod:PaymentPeriod[A])(implicit ordering:Ordering[B]) = paymentPeriod.asMoreGeneric[B]
+
+}
+
+
+
 
 object OrderingImplicits extends OrderingImplicits
 
 object RichJodaTimeExtensions {
 
-  val millisInDay = 1000d * 60d * 60d * 24d
+
 
   implicit class RichJodaTimeInstant(val start:ReadableInstant) extends AnyVal{
 
-    def to(end:ReadableInstant) = new org.joda.time.Interval(start,end)
+   // def to(end:ReadableInstant) = new org.joda.time.Interval(start,end)
 
-    def daysTo(end: ReadableDateTime): Long = math.round(to(end).toDurationMillis / millisInDay)
+    def daysTo(end: ReadableDateTime): Long = Days.daysBetween(start,end).getDays
 
   }
 
@@ -57,9 +67,10 @@ object RichJodaTimeExtensions {
 
   }
 
-  implicit class RichDateIntervalProperty(val interval:DateInterval ) extends AnyVal{
+  implicit class RichDateIntervalProperty[A<:ReadableDateTime](val interval:Interval[A] ) extends AnyVal{
 
     import OrderingImplicits._
+
     final def businessDaysAccordingTo(implicit holidayCalendar:HolidayCalendar): Long = {
 
       import DateAdjustmentTools._
@@ -81,20 +92,28 @@ object RichJodaTimeExtensions {
   }
 
 }
-trait DateDsl extends OrderingImplicits{
-
-
-
-  implicit def toDateTime(readableDateTime:ReadableDateTime) = readableDateTime.toDateTime
-
-
-  def asDayStream(start: DateMidnight, end: DateMidnight): Stream[DateMidnight] = {
-    if (start > end)
-      Stream.empty[DateMidnight]
-    else
-      Stream.cons(start, asDayStream(start plusDays 1, end))
-  }
-
-}
-
-object DateDsl extends DateDsl
+//
+//trait ScalaFinDateMathImplicits extends OrderingImplicits {
+//
+//	implicit def toDateTime(readableDateTime:ReadableDateTime) = readableDateTime.toDateTime
+//
+//}
+//
+//object ScalaFinDateMathImplicits extends ScalaFinDateMathImplicits
+//trait DateDsl extends OrderingImplicits{
+//
+//
+//
+//
+//
+//
+//  def asDayStream(start: DateMidnight, end: DateMidnight): Stream[DateMidnight] = {
+//    if (start > end)
+//      Stream.empty[DateMidnight]
+//    else
+//      Stream.cons(start, asDayStream(start plusDays 1, end))
+//  }
+//
+//}
+//
+//object DateDsl extends DateDsl

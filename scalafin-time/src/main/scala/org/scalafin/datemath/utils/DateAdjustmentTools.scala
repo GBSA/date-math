@@ -15,7 +15,7 @@ import org.scalafin.datemath.{BusinessDayConvention, HolidayCalendar}
 
 trait DateAdjustmentTools {
 
-  import DateDsl._
+	private implicit def toDateTime(readableDateTime:ReadableDateTime) = readableDateTime.toDateTime
 
    def advance(date: ReadableDateTime, hc:HolidayCalendar, offsetAmount: Int, businessDayConvention: BusinessDayConvention): ReadableDateTime = {
      if (offsetAmount == 0) {
