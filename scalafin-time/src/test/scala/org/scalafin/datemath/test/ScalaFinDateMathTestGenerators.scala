@@ -41,11 +41,9 @@ trait CalendarsGenerators extends JodaTimeGenerators {
 
 }
 
-trait JavaToJodaTimeConversions{
+trait LongToJodaTimeConversions{
 
-	implicit  def toJodaDateMidnight(millis:Long) = new DateMidnight(millis)
-
-	implicit  def toJodaDateTime(millis:Long) = new DateTime(millis)
+	implicit  def toJodaDateTime(millis:Long) = toJodaLocalDate(millis).toDateTimeAtStartOfDay
 
 	implicit  def toJodaLocalDate(millis:Long) = new LocalDate(millis)
 
@@ -89,10 +87,8 @@ trait FromAmericanDiscoveryToJupiter  extends BoundedLongGeneration{
 
 }
 
-trait JodaTimeGenerators extends JavaToJodaTimeConversions with BoundedLongGeneration{
+trait JodaTimeGenerators extends LongToJodaTimeConversions with BoundedLongGeneration{
 
-//	implicit def JodaDateMidnightArbitrary(implicit arbitrary:Arbitrary[Long]):Arbitrary[DateMidnight] = arbitraryFromConversion[DateMidnight]
-//
 //	implicit def JodaDateTimeArbitrary(implicit arbitrary:Arbitrary[Long]):Arbitrary[DateTime] = arbitraryFromConversion[DateTime]
 //
 //	implicit def JodaLocalDateArbitrary(implicit arbitrary:Arbitrary[Long]):Arbitrary[LocalDate] = arbitraryFromConversion[LocalDate]
@@ -102,8 +98,6 @@ trait JodaTimeGenerators extends JavaToJodaTimeConversions with BoundedLongGener
 //	}
 
 	//TODO: fix this when answer become available on ml
-
-	implicit val JodaDateMidnightArbitrary:Arbitrary[DateMidnight] = arbitraryFromConversion[DateMidnight]
 
 	implicit val JodaDateTimeArbitrary:Arbitrary[DateTime] = arbitraryFromConversion[DateTime]
 

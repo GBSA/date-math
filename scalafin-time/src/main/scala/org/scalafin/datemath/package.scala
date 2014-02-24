@@ -1,7 +1,9 @@
 package org.scalafin
 
-import org.scalafin.utils.Interval
-import org.joda.time.{ReadableInstant, ReadableDateTime}
+import org.scalafin.utils.{IntervalBuilder, Interval}
+import org.joda.time.{DateTime, ReadableInstant, ReadableDateTime}
+import scalaz.std.math.ordering
+import scalaz.Validation
 
 /**
  * Created with IntelliJ IDEA.
@@ -30,6 +32,30 @@ package object datemath {
 		}
 
 	}
+
+	trait PaymentPeriodBuilder{
+
+		def build[A](actual: Interval[A], reference: Option[Interval[A]]):PaymentPeriod[A]
+
+	}
+
+	trait SimplePaymentPeriodBuilder extends PaymentPeriodBuilder{
+
+		def build[A](actual1: Interval[A], reference1: Option[Interval[A]]):PaymentPeriod[A]={
+
+			new PaymentPeriod[A] {
+
+				override def reference: Option[Interval[A]] = reference1
+
+				override def actual: Interval[A] = actual1
+
+				}
+
+		}
+
+	}
+
+	object SimplePaymentPeriodBuilder extends SimplePaymentPeriodBuilder
 	
   case class ScheduledFinancialPeriod[T<:ReadableInstant] (actual: Interval[T], reference: Option[Interval[T]] = None) extends PaymentPeriod[T] {
 
@@ -48,6 +74,8 @@ package object datemath {
 
     def add(amount: Int, date: ReadableDateTime): ReadableDateTime
 
+	  def subtract(amount:Int,date:ReadableDateTime):ReadableDateTime = add(-amount,date)
+
   }
 
   trait ExactFitInYear {
@@ -64,7 +92,7 @@ package object datemath {
 
   trait UnadjustedBusinessDayConvention extends BusinessDayConvention{
 
-    override final def adjust(dt: ReadableDateTime)(implicit hc: HolidayCalendar): ReadableDateTime = dt
+    override final def adjust(dt: ReadableDateTime)(implicit hc: HolidayCalendar): DateTime = dt.toDateTime
 
   }
 

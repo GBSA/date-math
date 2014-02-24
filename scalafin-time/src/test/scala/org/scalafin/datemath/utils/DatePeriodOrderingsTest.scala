@@ -2,8 +2,8 @@ package org.scalafin.datemath.utils
 
 import org.specs2.Specification
 import org.scalafin.datemath.utils.DatePeriodOrderings.{EndPointOrdering, MidPointOrdering, StartPointOrdering}
-import org.joda.time.{DateMidnight, DateTime}
-import org.scalafin.utils.{DefaultIntervalBuilder, IntervalBuilder}
+import org.joda.time.DateTime
+import org.scalafin.utils.DefaultIntervalBuilder
 import org.specs2.ScalaCheck
 import org.scalacheck.Arbitrary._
 import java.util.Date
@@ -47,12 +47,12 @@ class DatePeriodOrderingsTest extends Specification with ScalaCheck with JodaTim
 
 	def e1 = {
 		import StartPointOrdering._
-		val start1 = new DateMidnight(2010,1,3)
-		val end1 = new DateMidnight(2010,3,3)
-		val start2 = new DateMidnight(2010,1,4)
-		val end2 = new DateMidnight(2010,1,5)
-		val start3 = new DateMidnight(2010,1,5)
-		val end3 = new DateMidnight(2010,1,5)
+		val start1 = new DateTime(2010,1,3,0,0)
+		val end1 = new DateTime(2010,3,3,0,0)
+		val start2 = new DateTime(2010,1,4,0,0)
+		val end2 = new DateTime(2010,1,5,0,0)
+		val start3 = new DateTime(2010,1,5,0,0)
+		val end3 = new DateTime(2010,1,5,0,0)
 		val interval = DefaultIntervalBuilder(start1,end1).toOption.get
 		val interval2 = DefaultIntervalBuilder(start2,end2).toOption.get
 		val interval3 = DefaultIntervalBuilder(start3,end3).toOption.get
@@ -75,12 +75,12 @@ class DatePeriodOrderingsTest extends Specification with ScalaCheck with JodaTim
 
   def e3 = {
       import MidPointOrdering._
-      val start1 = new DateMidnight(2010,1,3)
-      val end1 = new DateMidnight(2010,3,3)
-      val start2 = new DateMidnight(2010,1,4)
-      val end2 = new DateMidnight(2010,3,4)
-      val start3 = new DateMidnight(2010,1,5)
-      val end3 = new DateMidnight(2010,1,5)
+      val start1 = new DateTime(2010,1,3,0,0)
+      val end1 = new DateTime(2010,3,3,0,0)
+      val start2 = new DateTime(2010,1,4,0,0)
+      val end2 = new DateTime(2010,3,4,0,0)
+      val start3 = new DateTime(2010,1,5,0,0)
+      val end3 = new DateTime(2010,1,5,0,0)
       val interval = DefaultIntervalBuilder(start1,end1).toOption.get
       val interval2 = DefaultIntervalBuilder(start2,end2).toOption.get
       val interval3 = DefaultIntervalBuilder(start3,end3).toOption.get
@@ -91,12 +91,12 @@ class DatePeriodOrderingsTest extends Specification with ScalaCheck with JodaTim
 
 	def e4 = {
 		import EndPointOrdering._
-		val start1 = new DateMidnight(2010,1,3)
-		val end1 = new DateMidnight(2010,3,6)
-		val start2 = new DateMidnight(2010,1,4)
-		val end2 = new DateMidnight(2010,1,5)
-		val start3 = new DateMidnight(2010,1,5)
-		val end3 = new DateMidnight(2010,1,5)
+		val start1 = new DateTime(2010,1,3,0,0)
+		val end1 = new DateTime(2010,3,6,0,0)
+		val start2 = new DateTime(2010,1,4,0,0)
+		val end2 = new DateTime(2010,1,5,0,0)
+		val start3 = new DateTime(2010,1,5,0,0)
+		val end3 = new DateTime(2010,1,5,0,0)
 		val interval = DefaultIntervalBuilder(start1,end1).toOption.get
 		val interval2 = DefaultIntervalBuilder(start2,end2).toOption.get
 		val interval3 = DefaultIntervalBuilder(start3,end3).toOption.get

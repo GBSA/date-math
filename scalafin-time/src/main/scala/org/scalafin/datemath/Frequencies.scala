@@ -1,6 +1,6 @@
 package org.scalafin.datemath
 
-import org.joda.time.ReadableDateTime
+import org.joda.time.{ReadablePeriod, ReadableDateTime}
 import org.scalafin.date._
 
 
@@ -62,9 +62,17 @@ object Frequencies {
    * Repeats on the same day every year
    */
   case object ANNUALLY extends Frequency with ExactFitInYear {
+
     def add(amount: Int, date: ReadableDateTime): ReadableDateTime = date plusYears(1 * amount)
     val periodsPerYear = 1
+
   }
+
+	case class ArbitraryFrequency(period:ReadablePeriod) extends Frequency{
+
+		override def add(amount: Int, date: ReadableDateTime): ReadableDateTime = date plusMillis( period.toPeriod.getMillis * amount)
+
+	}
 
 
 

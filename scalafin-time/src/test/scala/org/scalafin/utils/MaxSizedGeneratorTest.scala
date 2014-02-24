@@ -2,7 +2,7 @@ package org.scalafin.utils
 
 import org.specs2.{ScalaCheck, Specification}
 import org.scalacheck.{Prop, Gen, Arbitrary}
-import org.joda.time.DateMidnight
+import org.joda.time.{DateTime, DateMidnight}
 import org.scalafin.datemath.test.{FromAmericanDiscoveryToJupiter, JodaTimeGenerators}
 import org.scalafin.datemath.utils.OrderingImplicits
 import org.specs2.matcher.Parameters
@@ -37,12 +37,12 @@ class MaxSizedGeneratorTest extends Specification
 
 			Prop.forAll(Arbitrary.arbitrary[Long]){
 				(l:Long) => {
-					implicit val dateMidnightArbitrary = Arbitrary.arbitrary[DateMidnight]
+					implicit val dateTimeArbitraryArbitrary = Arbitrary.arbitrary[DateTime]
 					implicit val longGen = Gen.choose(0L,l)
-					implicit val adder  = (dateMidnight:DateMidnight,millis:Long) => dateMidnight plus millis
-					implicit val arb = maxSizedIntervalArbitrary[DateMidnight,Long]
+					implicit val adder  = (dateTime:DateTime,millis:Long) => dateTime plus millis
+					implicit val arb = maxSizedIntervalArbitrary[DateTime,Long]
 					Prop.forAll{
-						(interval:Interval[DateMidnight]) =>  (interval.end.getMillis - interval.start.getMillis ) must beLessThanOrEqualTo(l)
+						(interval:Interval[DateTime]) =>  (interval.end.getMillis - interval.start.getMillis ) must beLessThanOrEqualTo(l)
 					}
 				}
 			}

@@ -45,7 +45,6 @@ object OrderingImplicits extends OrderingImplicits
 object RichJodaTimeExtensions {
 
 
-
   implicit class RichJodaTimeInstant(val start:ReadableInstant) extends AnyVal{
 
     def daysTo(end: ReadableDateTime): Long = {

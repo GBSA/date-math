@@ -1,5 +1,11 @@
 package org.scalafin.scheduler
 
+import org.scalafin.datemath.PaymentPeriod
+
+
+case class Schedule[A](periods:Stream[PaymentPeriod[A]]){
+
+}
 
 //class Schedule[A,B <: Interval[A]] private (val periods: Seq[T]) extends IntervalSplitter {
 //

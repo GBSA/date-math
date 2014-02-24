@@ -64,7 +64,7 @@ sealed trait Interval[A]{
 
 
 
-sealed trait IntervalBuilder[A[_]<:Interval[_]]{
+sealed trait IntervalBuilder[+A[_]<:Interval[_]]{
 
   self =>
 
@@ -77,7 +77,7 @@ sealed trait IntervalBuilder[A[_]<:Interval[_]]{
   else
     Failure(InvalidIntervalException(s"$start does not preceed $end"))
 
-  private [utils] def unsafe[B](s:B,e:B)(implicit ordering:Ordering[B]):A[B]
+  private [scalafin] def unsafe[B](s:B,e:B)(implicit ordering:Ordering[B]):A[B]
 
 }
 
@@ -85,7 +85,7 @@ trait DefaultIntervalBuilder extends IntervalBuilder[Interval]{
   self =>
 
 
-  override private[utils] def unsafe[B](s: B, e: B)(implicit ordering1: Ordering[B]): Interval[B] = new Interval[B]{
+  override private[scalafin] def unsafe[B](s: B, e: B)(implicit ordering1: Ordering[B]): Interval[B] = new Interval[B]{
 
     type Repr[X] = Interval[X]
 

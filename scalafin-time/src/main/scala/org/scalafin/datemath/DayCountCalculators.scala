@@ -1,8 +1,7 @@
 package org.scalafin.datemath
 
-import org.joda.time.{ReadableDateTime, DateMidnight, DateTimeConstants}
+import org.joda.time.{DateTime, ReadableDateTime,  DateTimeConstants}
 import org.scalafin.utils.Interval
-import org.scalafin.date._
 import org.scalafin.datemath.utils.OrderingImplicits._
 
 
@@ -47,10 +46,10 @@ object DayCountCalculators{
       date minusDays  date.dayOfYear.maxValue
     }
 
-    private def february29InYear(year: Int): Option[DateMidnight] = {
-      val dateMidnight = new DateMidnight(year, 1, 1)
-      if (dateMidnight.dayOfYear.maxValue == 366)
-        Some(dateMidnight.withMonthOfYear(2).withDayOfMonth(29))
+    private def february29InYear(year: Int): Option[DateTime] = {
+      val dateTime = new DateTime(year, 1, 1)
+      if (dateTime.dayOfYear.maxValue == 366)
+        Some(dateTime.withMonthOfYear(2).withDayOfMonth(29))
       else
         None
     }

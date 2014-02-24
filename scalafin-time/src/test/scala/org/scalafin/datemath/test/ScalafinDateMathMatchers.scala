@@ -3,12 +3,13 @@ package org.scalafin.datemath.test
 import org.specs2.text.Sentences
 import org.joda.time._
 import org.specs2.matcher.{MustMatchers, MatchResult, Expectable, Matcher}
-import java.util.{GregorianCalendar, Date}
+import java.util.Date
 import org.scalafin.datemath.{PaymentPeriod, DayCountCalculator, HolidayCalendar, BusinessDayConvention}
 import com.mbc.jfin.holiday.{BusinessDayConvention => JFinBusinessDayConvention, HolidayCalendar => MbcHolidaycalendar, DateAdjustmentService}
 import com.mbc.jfin.daycount.impl.{DaycountCalculator => JFinDaycountCalculator}
 import com.mbc.jfin.schedule.SchedulePeriod
 import org.scalafin.datemath.utils.{OrderingImplicits, Generifiers}
+import org.scalafin.utils.Interval
 
 /**
  * Created with IntelliJ IDEA.
@@ -123,5 +124,39 @@ trait DayCountConventionTupleMatchers extends JodaTimeDateMatchers with MustMatc
 
 			}
 		}
+
+}
+
+trait PeriodMatchers extends MustMatchers{
+
+	def beTheSameInstantAs(instant:ReadableInstant):Matcher[ReadableDateTime]
+
+	def be(start:ReadableInstant, end:ReadableInstant):Matcher[Interval[ReadableDateTime]] = new Matcher[Interval[ReadableDateTime]]{
+
+		override def apply[S <: Interval[ReadableDateTime]](t: Expectable[S]): MatchResult[S] = {
+			val interval = t.value
+			val startIsCorrect = interval.start aka "The start of interval " must beTheSameInstantAs(start)
+			val endIsCorrect = interval.end aka "The end of interval " must beTheSameInstantAs(end)
+			val resultMatch = startIsCorrect and endIsCorrect
+			result(resultMatch,t)
+
+		}
+	}
+
+
+}
+
+trait ComparableMatchers extends Sentences{
+
+	def beEqualAccordingToCompare[B<:Comparable[B],A<:B](b:B):Matcher[A] = new Matcher[A]{
+
+		override def apply[S <: A](t: Expectable[S]): MatchResult[S] = {
+			val s = t.value
+			val compareResult = s compareTo b
+			val message = s"$s is equal to $b according to java.lang.Comparable interface"
+			result(compareResult==0,message,negateSentence(message),t)
+		}
+
+	}
 
 }
