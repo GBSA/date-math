@@ -2,7 +2,7 @@ package org.scalafin.datemath.test
 
 
 
-import org.scalacheck.{Gen, Arbitrary}
+import org.scalacheck.{Arbitrary, Gen}
 import org.joda.time._
 import org.scalafin.utils.Interval
 import org.scalafin.datemath.PaymentPeriod
@@ -25,16 +25,17 @@ trait ScalaFinDateMathTestGenerators extends CalendarsGenerators{
 
 trait CalendarsGenerators extends JodaTimeGenerators {
 
-  self:ScalafinDateMathTestInstances =>
-  implicit def mbcHolidayCalendarArbitrary = Arbitrary {
-	    Arbitrary.arbitrary(Arbitrary.arbContainer[List,LocalDate]).map {
-		    dateList =>
-			    new SimpleMbcHolidayCalendar {
-				    override def listOfHolidays = dateList
-			    }
+	self:ScalafinDateMathTestInstances =>
+	implicit def mbcHolidayCalendarArbitrary = Arbitrary {
+		Arbitrary.arbitrary(Arbitrary.arbContainer[List,LocalDate]).map {
+			dateList =>
+				new SimpleMbcHolidayCalendar {
+					override def listOfHolidays = dateList
+				}
 
-	    }
-    }
+		}
+	}
+
 
 
 
@@ -57,11 +58,24 @@ trait BoundedLongGeneration {
 	def max:Long
 
 	implicit val notTooLong:Arbitrary[Long] = Arbitrary {
-		Gen chooseNum (min,max)
-	}
+			Gen chooseNum (min,max)
+		}
 
 
 }
+
+trait LongGeneratorWithNoOverflow extends BoundedLongGeneration {
+
+
+	val safetyFactory = 100000000L
+
+	override val max: Long = Long.MaxValue / safetyFactory
+
+	override val min: Long = - Long.MaxValue / safetyFactory
+
+}
+
+
 
 trait FromAmericanDiscoveryToJupiter  extends BoundedLongGeneration{
 
@@ -75,17 +89,30 @@ trait FromAmericanDiscoveryToJupiter  extends BoundedLongGeneration{
 
 }
 
-trait JodaTimeGenerators extends JavaToJodaTimeConversions {
+trait JodaTimeGenerators extends JavaToJodaTimeConversions with BoundedLongGeneration{
 
-	implicit def JodaDateMidnightArbitrary(implicit arbitrary:Arbitrary[Long]):Arbitrary[DateMidnight] = arbitraryFromConversion[DateMidnight]
+//	implicit def JodaDateMidnightArbitrary(implicit arbitrary:Arbitrary[Long]):Arbitrary[DateMidnight] = arbitraryFromConversion[DateMidnight]
+//
+//	implicit def JodaDateTimeArbitrary(implicit arbitrary:Arbitrary[Long]):Arbitrary[DateTime] = arbitraryFromConversion[DateTime]
+//
+//	implicit def JodaLocalDateArbitrary(implicit arbitrary:Arbitrary[Long]):Arbitrary[LocalDate] = arbitraryFromConversion[LocalDate]
+//
+//	private def arbitraryFromConversion[T](implicit arbitrary:Arbitrary[Long], fromLongBuilder:Long => T):Arbitrary[T] = Arbitrary {
+//		arbitrary.arbitrary map fromLongBuilder
+//	}
 
-	implicit def JodaDateTimeArbitrary(implicit arbitrary:Arbitrary[Long]):Arbitrary[DateTime] = arbitraryFromConversion[DateTime]
+	//TODO: fix this when answer become available on ml
 
-	implicit def JodaLocalDateArbitrary(implicit arbitrary:Arbitrary[Long]):Arbitrary[LocalDate] = arbitraryFromConversion[LocalDate]
+	implicit val JodaDateMidnightArbitrary:Arbitrary[DateMidnight] = arbitraryFromConversion[DateMidnight]
 
-	private def arbitraryFromConversion[T](implicit arbitrary:Arbitrary[Long], fromLongBuilder:Long => T):Arbitrary[T] = Arbitrary {
-		arbitrary.arbitrary map fromLongBuilder
+	implicit val JodaDateTimeArbitrary:Arbitrary[DateTime] = arbitraryFromConversion[DateTime]
+
+	implicit val JodaLocalDateArbitrary:Arbitrary[LocalDate] = arbitraryFromConversion[LocalDate]
+
+	private def arbitraryFromConversion[T](implicit fromLongBuilder:Long => T):Arbitrary[T] = Arbitrary {
+		notTooLong.arbitrary map fromLongBuilder
 	}
+
 
 
 }

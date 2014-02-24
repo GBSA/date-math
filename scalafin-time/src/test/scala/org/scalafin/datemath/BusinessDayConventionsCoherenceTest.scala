@@ -3,9 +3,8 @@ package org.scalafin.datemath
 import org.specs2.{ScalaCheck, Specification}
 import org.scalafin.datemath.test._
 import org.specs2.specification.Fragments
-import org.scalacheck.Arbitrary._
 import java.util.Date
-import com.mbc.jfin.holiday.{BusinessDayConvention => JFinBusinessDayConvention, HolidayCalendar => MbcHolidaycalendar}
+import com.mbc.jfin.holiday.{BusinessDayConvention => JFinBusinessDayConvention}
 import org.scalacheck.Prop
 import com.mbc.jfin.holiday.impl.DefaultDateAdjustmentServiceImpl
 
@@ -22,7 +21,9 @@ class BusinessDayConventionsCoherenceTest extends Specification
                                                   with FragmentBuildingTools
                                                   with CalendarsGenerators
                                                   with ScalafinDateMathTestInstances
-                                                  with BusinessDayConventionTupleMatchers {
+                                                  with BusinessDayConventionTupleMatchers
+																									with LongGeneratorWithNoOverflow{
+
 	val tuple1 = BusinessDayConventions.UNADJUSTED -> JFinBusinessDayConvention.UNADJUSTED
 
 	val tuple2 = BusinessDayConventions.FOLLOWING -> JFinBusinessDayConvention.FOLLOWING
@@ -45,7 +46,8 @@ class BusinessDayConventionsCoherenceTest extends Specification
 		val (scalafinDateMathConvention, jfinConvention) = tuple
 		val exampleName = s"jfin.$jfinConvention and scalafin-datemath.$scalafinDateMathConvention must adjust dates equally "
 		 exampleName ! Prop.forAll{
-									(calendar:SimpleMbcHolidayCalendar, date:Date) =>
+									(calendar:SimpleMbcHolidayCalendar, dateMillis:Long) =>
+								 val date = new Date(dateMillis)
 									implicit val context = AdjustmentContext(calendar,service)
 									tuple must produceIdenticalAdjustmentOn(date)
 

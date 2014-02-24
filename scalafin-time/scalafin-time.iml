@@ -36,13 +36,13 @@
     <orderEntry type="library" scope="$TEMPLATE$" name="Maven: org.scalamacros:quasiquotes_2.10.3:2.0.0-M3" level="project" />
     <orderEntry type="library" name="Maven: org.scalacheck:scalacheck_2.10:1.11.1" level="project" />
     <orderEntry type="library" name="Maven: org.scala-sbt:test-interface:1.0" level="project" />
-    <orderEntry type="library" scope="$TEMPLATE$" name="Maven: org.pegdown:pegdown:1.2.1" level="project" />
-    <orderEntry type="library" scope="$TEMPLATE$" name="Maven: org.parboiled:parboiled-java:1.1.4" level="project" />
-    <orderEntry type="library" scope="$TEMPLATE$" name="Maven: org.parboiled:parboiled-core:1.1.4" level="project" />
-    <orderEntry type="library" scope="$TEMPLATE$" name="Maven: org.ow2.asm:asm:4.1" level="project" />
-    <orderEntry type="library" scope="$TEMPLATE$" name="Maven: org.ow2.asm:asm-tree:4.1" level="project" />
-    <orderEntry type="library" scope="$TEMPLATE$" name="Maven: org.ow2.asm:asm-analysis:4.1" level="project" />
-    <orderEntry type="library" scope="$TEMPLATE$" name="Maven: org.ow2.asm:asm-util:4.1" level="project" />
+    <orderEntry type="library" name="Maven: org.pegdown:pegdown:1.4.2" level="project" />
+    <orderEntry type="library" name="Maven: org.parboiled:parboiled-java:1.1.6" level="project" />
+    <orderEntry type="library" name="Maven: org.parboiled:parboiled-core:1.1.6" level="project" />
+    <orderEntry type="library" name="Maven: org.ow2.asm:asm:4.1" level="project" />
+    <orderEntry type="library" name="Maven: org.ow2.asm:asm-tree:4.1" level="project" />
+    <orderEntry type="library" name="Maven: org.ow2.asm:asm-analysis:4.1" level="project" />
+    <orderEntry type="library" name="Maven: org.ow2.asm:asm-util:4.1" level="project" />
     <orderEntry type="library" scope="$TEMPLATE$" name="Maven: org.specs2:classycle:1.4.3" level="project" />
     <orderEntry type="library" name="Maven: org.scalaz:scalaz-core_2.10:7.0.0" level="project" />
     <orderEntry type="library" scope="$TEMPLATE$" name="Maven: org.scalaz:scalaz-concurrent_2.10:7.0.5" level="project" />

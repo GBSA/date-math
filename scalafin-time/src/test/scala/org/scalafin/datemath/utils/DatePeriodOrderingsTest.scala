@@ -10,7 +10,7 @@ import java.util.Date
 import org.scalacheck.Prop
 import org.specs2.matcher.Parameters
 import org.scalacheck.util.Pretty
-import org.scalafin.datemath.test.JodaTimeGenerators
+import org.scalafin.datemath.test.{LongGeneratorWithNoOverflow, JodaTimeGenerators}
 
 
 /**
@@ -20,7 +20,7 @@ import org.scalafin.datemath.test.JodaTimeGenerators
  * Time: 12:37
  *
  */
-class DatePeriodOrderingsTest extends Specification with ScalaCheck with JodaTimeGenerators{
+class DatePeriodOrderingsTest extends Specification with ScalaCheck with JodaTimeGenerators with LongGeneratorWithNoOverflow{
 
   import org.scalafin.datemath.utils.OrderingImplicits._
 
@@ -32,16 +32,16 @@ class DatePeriodOrderingsTest extends Specification with ScalaCheck with JodaTim
 
 	override  def is = s2"""
 
-	"Start Point ordering"
-			"should work correctly on a known example "       $e1
-		  "should work correctly on random generated data"  $e2
+	Start Point ordering
+			should work correctly on a known example        $e1
+		  should work correctly on random generated data  $e2
 
-	"Mid point ordering"
-			"should work correctly on a known example "       $e3
+	Mid point ordering
+			"should work correctly on a known example       $e3
 
-	"End point ordering" ^
-		"should work correctly on a known example"          $e4
-		"should work correctly on random generated data"    $e5
+	End point ordering
+		should work correctly on a known example          $e4
+		should work correctly on random generated data    $e5
 
 	"""
 

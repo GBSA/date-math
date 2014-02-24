@@ -1,7 +1,6 @@
-package org.scalafin.datemath.utils
+package org.scalafin.datemath.test
 
 import scalaz.Show
-import org.joda.time.DateTime
 import org.scalafin.utils.Interval
 import org.scalafin.datemath.PaymentPeriod
 import org.joda.time.base.BaseDateTime

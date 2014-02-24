@@ -48,9 +48,11 @@ object RichJodaTimeExtensions {
 
   implicit class RichJodaTimeInstant(val start:ReadableInstant) extends AnyVal{
 
-   // def to(end:ReadableInstant) = new org.joda.time.Interval(start,end)
-
-    def daysTo(end: ReadableDateTime): Long = Days.daysBetween(start,end).getDays
+    def daysTo(end: ReadableDateTime): Long = {
+	    val days = Days.daysBetween(start,end).getDays
+	    println(days)
+	    days
+    }
 
   }
 

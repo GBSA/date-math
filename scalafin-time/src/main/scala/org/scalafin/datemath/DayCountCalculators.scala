@@ -17,7 +17,11 @@ object DayCountCalculators{
     
     def normalizationFactor:Double
 
-    override def calculateDayCountFraction(period: PaymentPeriod[ReadableDateTime]): Double = (period.actual.start daysTo period.actual.end) / normalizationFactor
+    override def calculateDayCountFraction(period: PaymentPeriod[ReadableDateTime]): Double = {
+	    val days = (period.actual.start daysTo period.actual.end)
+	    println(days)
+	    days / normalizationFactor
+    }
 
   }
 
@@ -166,14 +170,22 @@ object DayCountCalculators{
     }
 
     private def adjustEomDates(days: (Int, Int)): (Int, Int) = {
-      val (correctedDay1, correctedDay2) = days
-      if (correctedDay2 == 31 && correctedDay1 >= 30) {
-        if (correctedDay1 == 31) {
-          (30, 30)
-        } else
-          (correctedDay1, 30)
-      } else
-        days
+
+	    def adjust1(dayOfMonths:(Int,Int)):(Int,Int) = {
+		    if(dayOfMonths._2==31 && dayOfMonths._1 >=30)
+			    (dayOfMonths._1,30)
+		    else
+			    dayOfMonths
+	    }
+
+	    def adjust2(dayOfMonths:(Int,Int)):(Int,Int) = {
+		    if(dayOfMonths._1==31)
+			    (30,dayOfMonths._2)
+		    else
+			    dayOfMonths
+
+	    }
+	    (adjust1 _ andThen adjust2)(days)
     }
 
   }

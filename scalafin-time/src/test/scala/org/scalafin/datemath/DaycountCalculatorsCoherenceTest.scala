@@ -5,8 +5,8 @@ import com.mbc.jfin.daycount.impl.calculator._
 import org.scalafin.datemath.DayCountCalculators._
 import org.specs2.{ScalaCheck, Specification}
 import org.scalafin.datemath.test._
-import org.specs2.specification.Fragments
-import org.scalacheck.Prop
+import org.specs2.specification.{Example, Fragments}
+import org.scalacheck.{Gen, Arbitrary, Prop}
 import org.joda.time._
 import org.scalacheck.util.Pretty
 import org.scalafin.utils.{Interval, DefaultIntervalBuilder, IntervalGenerators}
@@ -20,9 +20,6 @@ import org.specs2.matcher.Parameters
  * Time: 15:54
  *
  */
-
-
-
 class DayCountCalculatorsCoherenceTest extends Specification
                                                    with ScalaCheck
                                                    with FragmentBuildingTools
@@ -35,7 +32,7 @@ class DayCountCalculatorsCoherenceTest extends Specification
 																									 with FromAmericanDiscoveryToJupiter{
 
 
-	implicit val params =  Parameters(workers=4)
+	implicit val params =  Parameters(workers=4,minTestsOk = 1000,maxSize = 5000)
 
 	override val defaultPrettyParams = Pretty.Params(2)
 
@@ -51,13 +48,9 @@ class DayCountCalculatorsCoherenceTest extends Specification
 	// Shows for easier debugging
 
 	import org.scalafin.datemath.utils._
-	import IntervalShows._
 	import MillisShows._
+	import IntervalShows._
 	import PaymentPeriodShows._
-
-
-
-
 
 	def daysIn(paymentPeriod:PaymentPeriod[DateMidnight]):Int = {
 		def days(interval:Interval[DateMidnight]):Int = Days.daysBetween(interval.start,interval.end).getDays
@@ -66,11 +59,11 @@ class DayCountCalculatorsCoherenceTest extends Specification
 
 
 
-	def testTuple(filteringCondition:PaymentPeriod[DateMidnight] => Boolean)(tuple: (DayCountCalculator, JFinDaycountCalculator)) = {
+	def testTuple(tuple: (DayCountCalculator, JFinDaycountCalculator))(implicit arbitrary:Arbitrary[PaymentPeriod[DateMidnight]]):Example = {
 		val (scalafinDateMathCalculator, jfinConvention) = tuple
 		val exampleName = s"jfin.$jfinConvention and scalafin-datemath.$scalafinDateMathCalculator must compute the same value "
 		exampleName ! Prop.forAll {
-			(period: PaymentPeriod[DateMidnight]) => (  periodIsNotTooLongForJoda(period) && filteringCondition(period) ) ==> Prop.collect(daysIn(period)){
+			(period: PaymentPeriod[DateMidnight]) => periodIsNotTooLongForJoda(period) ==> Prop.collect(daysIn(period)){
 				tuple must computeIdenticalDayCountFor(period)
 			}
 
@@ -89,21 +82,61 @@ class DayCountCalculatorsCoherenceTest extends Specification
 
 	val tuple6 = US30360DayCountCalculator -> new US30360DaycountCalculator()
 
-	val nonSplittingDayCountCalculator = Seq(tuple1, tuple2, tuple3, tuple4, tuple5, tuple6, tuple6)
+	val nonSplittingDayCountCalculator = Seq(tuple1, tuple2, tuple3, tuple4, tuple5, tuple6)
 
 	val tuple7 = AFBActualActualDayCountCalculator -> new AFBActualActualDaycountCalculator()
 
-	val splittingDayCountCalculator = Seq(tuple4)
+	val splittingDayCountCalculator = Seq(tuple7)
 
 	implicit val intervalBuilder = DefaultIntervalBuilder
 
-	implicit val periodGen =  arbitraryFinancialPeriodWithNoReference[DateMidnight]
+	def testNotSplitting:Fragments = {
+		import IndepedendentExtremesIntervalGenerator._
+		val periodGen =  arbitraryFinancialPeriodWithNoReference[DateMidnight]
+		 val arbitrary = Arbitrary{
+			periodGen.arbitrary filter periodIsNotTooLongForJoda
+		}
+		testChunk(nonSplittingDayCountCalculator, "The non-splitting day count calculator should be equivalent between Jfin and scalafin-datemath", testTuple(_: (DayCountCalculator, JFinDaycountCalculator))(arbitrary))
 
-	val isPeriodShort = (paymentPeriod:PaymentPeriod[DateMidnight]) => daysIn(paymentPeriod) < 3650
+	}
 
-	override def is: Fragments = testChunk(nonSplittingDayCountCalculator, "The non-splitting day count calculator should be equivalent between Jfin and scalafin-datemath", testTuple(_ => true) _) ^
-															testChunk(splittingDayCountCalculator, "The splitting day count calculators should be equivalent between Jfin and scalafin-datemath", testTuple(isPeriodShort) _)
 
+	def testSplitting: Fragments = {
+		val maxMillisTenYears = Years.years(10) get DurationFieldType.millis()
+		implicit val millisGen = Gen.choose(0L,maxMillisTenYears)
+		implicit val adder = (d1:DateMidnight, millis:Long) => d1 plus millis
+		import MaxSizedGenerator._
+		val periodGen =  arbitraryFinancialPeriodWithNoReference[DateMidnight]
+		val arbitrary = Arbitrary{
+			periodGen.arbitrary filter periodIsNotTooLongForJoda
+		}
+		testChunk(splittingDayCountCalculator, "The non-splitting day count calculator should be equivalent between Jfin and scalafin-datemath", testTuple(_: (DayCountCalculator, JFinDaycountCalculator))(arbitrary))
+
+	}
+
+
+
+	//override def is: Fragments = testNotSplitting ^ testSplitting
+
+	override def is: Fragments = testKnownCase
+
+
+	def testKnownCase:Example = {
+		val tuple = tuple3
+		val (scalafinDateMathCalculator, jfinConvention) = tuple
+		val exampleName = s"jfin.$jfinConvention and scalafin-datemath.$scalafinDateMathCalculator must compute the same value "
+		val startDate:DateMidnight = -2422054408000L
+		val endDate:DateMidnight = -3600000L
+
+		val paymentPeriod = new PaymentPeriod[DateMidnight] {
+
+			override def reference: Option[Interval[DateMidnight]] = None
+
+			override def actual: Interval[DateMidnight] =  (DefaultIntervalBuilder apply(startDate, endDate)).toOption.get
+		}
+		exampleName ! (tuple must computeIdenticalDayCountFor(paymentPeriod))
+
+	}
 
 
 }
