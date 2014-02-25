@@ -46,7 +46,7 @@ class FrequencyTimeZonePreservationTest extends Specification with ScalaCheck {
                                      (frequency: Frequency, date: ReadableDateTime) =>
                                       Prop.collect(frequency)
                                      {
-                                       frequency.add(1, date).getZone must_== date.getZone
+                                       frequency.addTo(date).getZone must_== date.getZone
                                      }
                                    }
     }

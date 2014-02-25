@@ -1,9 +1,13 @@
 package org.scalafin
 
 import org.scalafin.utils.{IntervalBuilder, Interval}
-import org.joda.time.{DateTime, ReadableInstant, ReadableDateTime}
+import org.joda.time._
 import scalaz.std.math.ordering
 import scalaz.Validation
+import scala.Some
+import scala.concurrent.duration.Duration
+import org.joda.time.Duration
+import scala.annotation.tailrec
 
 /**
  * Created with IntelliJ IDEA.
@@ -72,9 +76,31 @@ package object datemath {
 
   trait Frequency {
 
-    def add(amount: Int, date: ReadableDateTime): ReadableDateTime
+	  self =>
 
-	  def subtract(amount:Int,date:ReadableDateTime):ReadableDateTime = add(-amount,date)
+	  protected def asPeriod: ReadablePeriod
+
+	  private implicit def toDateTime(readableDateTime:ReadableDateTime) = readableDateTime.toDateTime
+
+    def addTo(date: ReadableDateTime): ReadableDateTime = date plus asPeriod
+
+	  def subtractFrom(date:ReadableDateTime):ReadableDateTime = date minus asPeriod
+
+	  def divide(factor:Int):Frequency =   new Frequency {
+
+		  override protected def asPeriod: ReadablePeriod =  {
+			  val initialPeriod = self.asPeriod
+			  @tailrec
+			  def add(count:Int, period:Period):Period = {
+				  if(count==0)
+					  period
+				  else add(count-1, period plus initialPeriod)
+			  }
+			  add(factor,initialPeriod.toPeriod)
+
+		  }
+
+	  }
 
   }
 

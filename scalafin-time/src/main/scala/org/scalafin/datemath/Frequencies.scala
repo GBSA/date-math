@@ -1,12 +1,12 @@
 package org.scalafin.datemath
 
-import org.joda.time.{ReadablePeriod, ReadableDateTime}
+import org.joda.time._
 import org.scalafin.date._
 
 
 object Frequencies {
 
-	private implicit def toDateTime(readableDateTime:ReadableDateTime) = readableDateTime.toDateTime
+
 
 
   val values = Seq(DAILY,WEEKLY,LUNAR_MONTHLY,MONTHLY,QUARTERLY,SEMI_ANNUALLY,ANNUALLY)
@@ -16,7 +16,7 @@ object Frequencies {
    */
   case object DAILY extends Frequency{
 
-    def add(amount: Int, date: ReadableDateTime): ReadableDateTime = date plusDays (1 * amount)
+	  override protected def asPeriod: ReadablePeriod = Days days 1
 
   }
 
@@ -24,55 +24,58 @@ object Frequencies {
    * Repeats every day
    */
   case object WEEKLY extends Frequency {
-    def add(amount: Int, date: ReadableDateTime): ReadableDateTime = date plusWeeks (1 * amount)
+
+	  override protected def asPeriod: ReadablePeriod = Days days 7
+
   }
 
   /**
    * Repeats every 28 days
    */
   case object LUNAR_MONTHLY extends Frequency{
-    def add(amount: Int, date: ReadableDateTime): ReadableDateTime = date plusDays (28 * amount)
+
+	  override protected def asPeriod: ReadablePeriod = Days days 28
+
   }
+	
+	 class MonthMultipleFrequency private[Frequencies](val months:Int) extends Frequency with ExactFitInYear {
+
+		 override protected def asPeriod: ReadablePeriod = Months months months
+
+		val periodsPerYear =  12 / months
+
+	}
 
   /**
    * Repeats on the same day of every month
    */
-  case object MONTHLY extends Frequency with ExactFitInYear  {
-    def add(amount: Int, date: ReadableDateTime): ReadableDateTime = date plusMonths (1 * amount)
-    val periodsPerYear = 12
-  }
-
+  case object MONTHLY extends MonthMultipleFrequency(1)
   /**
    * Repeats on the same day every three months
    */
-  case object QUARTERLY extends Frequency with ExactFitInYear {
-    def add(amount: Int, date: ReadableDateTime): ReadableDateTime = date plusMonths(3 * amount)
-    val periodsPerYear = 4
-  }
+  case object QUARTERLY extends MonthMultipleFrequency(3)
 
   /**
    * Repeats on the same day every six months
    */
-  case object SEMI_ANNUALLY extends Frequency with ExactFitInYear {
-    def add(amount: Int, date: ReadableDateTime): ReadableDateTime = date plusMonths(6 * amount)
-    val periodsPerYear = 2
-  }
+  case object SEMI_ANNUALLY extends MonthMultipleFrequency(6)
 
   /**
    * Repeats on the same day every year
    */
-  case object ANNUALLY extends Frequency with ExactFitInYear {
+  case object ANNUALLY extends MonthMultipleFrequency(12)
 
-    def add(amount: Int, date: ReadableDateTime): ReadableDateTime = date plusYears(1 * amount)
-    val periodsPerYear = 1
+	/**
+	 * A generic frequency determined straight from a Joda ReadablePeriod
+	 * @param period the inverse of the frequency
+	 */
+	case class ArbitraryFrequency(private val period:ReadablePeriod) extends Frequency {
 
-  }
-
-	case class ArbitraryFrequency(period:ReadablePeriod) extends Frequency{
-
-		override def add(amount: Int, date: ReadableDateTime): ReadableDateTime = date plusMillis( period.toPeriod.getMillis * amount)
+		override protected def asPeriod: ReadablePeriod = period
 
 	}
+
+
 
 
 

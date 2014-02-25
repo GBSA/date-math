@@ -202,7 +202,7 @@ object DayCountCalculators{
 
     override def calculateDayCountFraction(period: PaymentPeriod[ReadableDateTime]): Double = {
       val dateRange = period.actual
-      val firstCouponDate = frequency add (1, dateRange.start)
+      val firstCouponDate = frequency addTo dateRange.start
       val daysInPeriod = dateRange.start daysTo firstCouponDate
       val daysInRange: Double = dateRange.start daysTo dateRange.end
       daysInRange / (frequency.periodsPerYear * daysInPeriod)
