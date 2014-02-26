@@ -43,7 +43,13 @@ trait CalendarsGenerators extends JodaTimeGenerators {
 
 trait LongToJodaTimeConversions{
 
-	implicit  def toJodaDateTime(millis:Long) = toJodaLocalDate(millis).toDateTimeAtStartOfDay
+	/* This does not work correctly
+	   implicit  def toJodaDateTime(millis:Long) = toJodaLocalDate(millis).toDateTimeAtStartOfDay
+	 */
+	implicit  def toJodaDateTime(millis:Long) = {
+		val localDate = toJodaLocalDate(millis)
+		new DateTime(localDate.getYear,localDate.getMonthOfYear,localDate.getDayOfMonth,0,0)
+	}
 
 	implicit  def toJodaLocalDate(millis:Long) = new LocalDate(millis)
 
@@ -89,16 +95,6 @@ trait FromAmericanDiscoveryToJupiter  extends BoundedLongGeneration{
 
 trait JodaTimeGenerators extends LongToJodaTimeConversions with BoundedLongGeneration{
 
-//	implicit def JodaDateTimeArbitrary(implicit arbitrary:Arbitrary[Long]):Arbitrary[DateTime] = arbitraryFromConversion[DateTime]
-//
-//	implicit def JodaLocalDateArbitrary(implicit arbitrary:Arbitrary[Long]):Arbitrary[LocalDate] = arbitraryFromConversion[LocalDate]
-//
-//	private def arbitraryFromConversion[T](implicit arbitrary:Arbitrary[Long], fromLongBuilder:Long => T):Arbitrary[T] = Arbitrary {
-//		arbitrary.arbitrary map fromLongBuilder
-//	}
-
-	//TODO: fix this when answer become available on ml
-
 	implicit val JodaDateTimeArbitrary:Arbitrary[DateTime] = arbitraryFromConversion[DateTime]
 
 	implicit val JodaLocalDateArbitrary:Arbitrary[LocalDate] = arbitraryFromConversion[LocalDate]
@@ -108,6 +104,17 @@ trait JodaTimeGenerators extends LongToJodaTimeConversions with BoundedLongGener
 	}
 
 
+	def periodNotDependingOnStart:Gen[Period] = {
+		for {
+			days <- Gen.choose(-31,31)
+			years <- Gen.choose(-50,+50)
+			hours <- Gen.choose(-24,24)
+		  weeks <- Gen.choose(-52,52)
+		  minutes <- Gen.choose(-120,120)
+			seconds <- Gen.choose(-120,120)
+			millisec <- Gen.choose(-2000,2000)
+		} yield new Period(0,0,weeks,days + years *365,hours,minutes,seconds,millisec)
+	}
 
 }
 

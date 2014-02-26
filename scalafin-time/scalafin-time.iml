@@ -44,7 +44,7 @@
     <orderEntry type="library" name="Maven: org.ow2.asm:asm-analysis:4.1" level="project" />
     <orderEntry type="library" name="Maven: org.ow2.asm:asm-util:4.1" level="project" />
     <orderEntry type="library" scope="$TEMPLATE$" name="Maven: org.specs2:classycle:1.4.3" level="project" />
-    <orderEntry type="library" name="Maven: org.scalaz:scalaz-core_2.10:7.0.0" level="project" />
+    <orderEntry type="library" name="Maven: org.scalaz:scalaz-core_2.10:7.0.5" level="project" />
     <orderEntry type="library" scope="$TEMPLATE$" name="Maven: org.scalaz:scalaz-concurrent_2.10:7.0.5" level="project" />
     <orderEntry type="library" scope="$TEMPLATE$" name="Maven: org.scalaz:scalaz-effect_2.10:7.0.5" level="project" />
     <orderEntry type="library" scope="$TEMPLATE$" name="Maven: org.mockito:mockito-all:1.9.0" level="project" />

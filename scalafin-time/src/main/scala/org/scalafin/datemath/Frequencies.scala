@@ -16,7 +16,7 @@ object Frequencies {
    */
   case object DAILY extends Frequency{
 
-	  override protected def asPeriod: ReadablePeriod = Days days 1
+	  override def period: ReadablePeriod = Days days 1
 
   }
 
@@ -25,7 +25,7 @@ object Frequencies {
    */
   case object WEEKLY extends Frequency {
 
-	  override protected def asPeriod: ReadablePeriod = Days days 7
+	  override def period: ReadablePeriod = Days days 7
 
   }
 
@@ -34,13 +34,13 @@ object Frequencies {
    */
   case object LUNAR_MONTHLY extends Frequency{
 
-	  override protected def asPeriod: ReadablePeriod = Days days 28
+	  override def period: ReadablePeriod = Days days 28
 
   }
 	
 	 class MonthMultipleFrequency private[Frequencies](val months:Int) extends Frequency with ExactFitInYear {
 
-		 override protected def asPeriod: ReadablePeriod = Months months months
+		 override def period: ReadablePeriod = Months months months
 
 		val periodsPerYear =  12 / months
 
@@ -69,11 +69,7 @@ object Frequencies {
 	 * A generic frequency determined straight from a Joda ReadablePeriod
 	 * @param period the inverse of the frequency
 	 */
-	case class ArbitraryFrequency(private val period:ReadablePeriod) extends Frequency {
-
-		override protected def asPeriod: ReadablePeriod = period
-
-	}
+	case class ArbitraryFrequency(period:ReadablePeriod) extends Frequency
 
 
 

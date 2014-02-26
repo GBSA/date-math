@@ -1,13 +1,10 @@
 package org.scalafin
 
-import org.scalafin.utils.{IntervalBuilder, Interval}
+import org.scalafin.utils.Interval
 import org.joda.time._
-import scalaz.std.math.ordering
 import scalaz.Validation
 import scala.Some
-import scala.concurrent.duration.Duration
-import org.joda.time.Duration
-import scala.annotation.tailrec
+import org.scalafin.scheduler.Schedule
 
 /**
  * Created with IntelliJ IDEA.
@@ -78,27 +75,17 @@ package object datemath {
 
 	  self =>
 
-	  protected def asPeriod: ReadablePeriod
+	  def period: ReadablePeriod
 
 	  private implicit def toDateTime(readableDateTime:ReadableDateTime) = readableDateTime.toDateTime
 
-    def addTo(date: ReadableDateTime): ReadableDateTime = date plus asPeriod
+    def addTo(date: ReadableDateTime): ReadableDateTime = date plus period
 
-	  def subtractFrom(date:ReadableDateTime):ReadableDateTime = date minus asPeriod
+	  def subtractFrom(date:ReadableDateTime):ReadableDateTime = date minus period
 
 	  def divide(factor:Int):Frequency =   new Frequency {
 
-		  override protected def asPeriod: ReadablePeriod =  {
-			  val initialPeriod = self.asPeriod
-			  @tailrec
-			  def add(count:Int, period:Period):Period = {
-				  if(count==0)
-					  period
-				  else add(count-1, period plus initialPeriod)
-			  }
-			  add(factor,initialPeriod.toPeriod)
-
-		  }
+		  override def period: ReadablePeriod =  self.period.toPeriod multipliedBy factor
 
 	  }
 
@@ -139,6 +126,18 @@ package object datemath {
   }
 
   trait StubType
+
+
+	class SchedulingImpossibleException(message:String, cause:Option[Throwable] = None) extends Exception(message,cause getOrElse null)
+
+	trait Scheduler {
+
+		def schedule(frequency:Frequency, start: ReadableDateTime, end: ReadableDateTime):ScheduleResult[ReadableDateTime]
+
+	}
+
+
+	type ScheduleResult[T] = Validation[SchedulingImpossibleException, Schedule[ReadableDateTime]]
 
 
 }
