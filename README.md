@@ -14,16 +14,12 @@ Why date-math
 3. When we tried to retrieve the last version from the svn trunk, there was a mix of the old source code, in package `org.jin` and new source code in package `com.mbc.jfin` and the code didn't compile
 
 
-
-
- 
-
 As a consequence, we decided to try to rewrite it as a simple exercise. We then decided to publish the result
-@edmondo1984 ad @jnguyenxuan
+[@edmondo1984](https://github.com/edmondo1984) and [@jnguyenxuan](https://github.com/jnguyenx)
 
 Philisophy
 -----------
-The `scalafin-datemath` didn't want to implement all the features in `jFin`, but just the subset we were using. It has a very simple, yet powerful design.
+The `date-math` didn't want to implement all the features in `jFin`, but just the subset we were using. It has a very simple, yet powerful design.
 
 1.  It provides a single entry point, `org.scalafin` package object, which contains all the key abstractions used in the code
 2.  It relies on the largely used, de-facto standard library for date manipulation in Java: `JodaTime` 
