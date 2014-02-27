@@ -37,7 +37,7 @@ class DatePeriodOrderingsTest extends Specification with ScalaCheck with JodaTim
 		  should work correctly on random generated data  $e2
 
 	Mid point ordering
-			"should work correctly on a known example       $e3
+			should work correctly on a known example       $e3
 
 	End point ordering
 		should work correctly on a known example          $e4

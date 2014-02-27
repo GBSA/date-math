@@ -2,14 +2,15 @@ package com.gottexbrokers.datemath.test
 
 import org.specs2.text.Sentences
 import org.joda.time._
-import org.specs2.matcher.{MustMatchers, MatchResult, Expectable, Matcher}
+import org.specs2.matcher._
 import java.util.Date
 import com.gottexbrokers.datemath._
-import com.mbc.jfin.holiday.{BusinessDayConvention => JFinBusinessDayConvention, HolidayCalendar => MbcHolidaycalendar, DateAdjustmentService}
-import com.mbc.jfin.daycount.impl.{DaycountCalculator => JFinDaycountCalculator}
+import JFinTypeAliases._
 import com.mbc.jfin.schedule.SchedulePeriod
 import com.gottexbrokers.datemath.utils.{OrderingImplicits, Generifiers}
-import org.joda.time.Interval
+import com.gottexbrokers.datemath.scheduler.Schedule
+import com.mbc.jfin.holiday.DateAdjustmentService
+
 
 /**
  * Created with IntelliJ IDEA.
@@ -19,8 +20,6 @@ import org.joda.time.Interval
  *
  */
 
-//TODO: check naming conventions
-//TODO: add scalarestyle maven plugin
 trait ScalafinDateMathMatchers extends JodaTimeDateMatchers
                                        with BusinessDayConventionTupleMatchers
                                        with DayCountConventionTupleMatchers {
@@ -29,6 +28,8 @@ trait ScalafinDateMathMatchers extends JodaTimeDateMatchers
 }
 
 trait JodaTimeDateMatchers extends Sentences {
+
+
 
 	def beEquivalentTo(readableDateTime: ReadableDateTime): Matcher[ReadablePartial] = new Matcher[ReadablePartial] {
 		override def apply[S <: ReadablePartial](t: Expectable[S]): MatchResult[S] = {
@@ -127,7 +128,7 @@ trait DayCountConventionTupleMatchers extends JodaTimeDateMatchers with MustMatc
 
 }
 
-trait PeriodMatchers extends MustMatchers{
+trait PeriodMatchers extends MustMatchers with JodaTimeDateMatchers{
 
 	def beTheSameInstantAs(instant:ReadableInstant):Matcher[ReadableDateTime]
 
@@ -158,5 +159,61 @@ trait ComparableMatchers extends Sentences{
 		}
 
 	}
+
+}
+
+
+
+trait ScheduleMatchers extends MatchersImplicits with MustMatchers with JodaTimeDateMatchers{
+
+	def beAnIntervalEquivalentTo(start:ReadablePartial, end:ReadablePartial):Matcher[math.Interval[ReadableDateTime]] = new Matcher[math.Interval[ReadableDateTime]]{
+
+		override def apply[S <: math.Interval[ReadableDateTime]](t: Expectable[S]): MatchResult[S] = {
+			val interval = t.value
+			val startIsCorrect = start aka "The start of interval" must beEquivalentTo(interval.start)
+			val endIsCorrect = end aka "The end of interval " must beEquivalentTo(interval.end)
+			val resultMatch = startIsCorrect and endIsCorrect
+			result(resultMatch,t)
+
+		}
+	}
+
+
+	def beAScheduleEquivalentTo(jfinSchedule:JFinSchedule):Matcher[Schedule[ReadableDateTime]] = new Matcher[Schedule[ReadableDateTime]]{
+
+		override def apply[S <: Schedule[ReadableDateTime]](t: Expectable[S]): MatchResult[S] = {
+			val value = t.value
+			import scala.collection.JavaConversions._
+			val zippedPeriods = jfinSchedule.zipWithIndex.zip(value.periods)
+			val matchResult = forall(zippedPeriods)    {
+				case((jfinSchedulerPeriod,index), period) => period must beAPeriodEquivalentTo(jfinSchedulerPeriod).updateMessage(s => s"For period $index $s")
+			}
+			result(matchResult,t)
+		}
+	}
+
+	def beAPeriodEquivalentTo(paymentPeriod:JFinSchedulePeriod):Matcher[PaymentPeriod[ReadableDateTime]] = new Matcher[PaymentPeriod[ReadableDateTime]]{
+		override def apply[S <: PaymentPeriod[ReadableDateTime]](t: Expectable[S]): MatchResult[S] = {
+			val value = t.value
+			val actualMatch = value.actual aka "The actual interval" must beAnIntervalEquivalentTo(paymentPeriod.getStart,paymentPeriod.getEnd)
+			//TODO use applicative syntax
+//			import scalaz.Scalaz._
+//			val referenceOption = ( Option(paymentPeriod.getReferenceStart) |@|  Option(paymentPeriod.getReferenceEnd)) {(x,y) => (x,y) }
+			val referenceOption = if(paymentPeriod.getReferenceStart!=null || paymentPeriod.getReferenceEnd!=null)
+																Some((paymentPeriod.getReferenceStart,paymentPeriod.getReferenceEnd))
+														else
+																None
+			val referenceMatch = referenceOption match {
+					case Some((x,y)) => value.reference aka "The reference interval" must beLike{
+						case Some(r) => r must beAnIntervalEquivalentTo(x,y)
+						case None => value.actual must beAnIntervalEquivalentTo(x,y)
+					}
+					case None => value.reference aka "The reference interval" must beNone
+			}
+			result(referenceMatch and actualMatch, t)
+
+		}
+	}
+
 
 }

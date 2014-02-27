@@ -61,7 +61,9 @@ class DayCountCalculatorsCoherenceTest extends Specification
 		val (scalafinDateMathCalculator, jfinConvention) = tuple
 		val exampleName = s"jfin.$jfinConvention and scalafin-datemath.$scalafinDateMathCalculator must compute the same value "
 		exampleName ! Prop.forAll {
-			(period: PaymentPeriod[DateTime]) => periodIsNotTooLongForJoda(period) ==> tuple must computeIdenticalDayCountFor(period)
+			(period: PaymentPeriod[DateTime]) => periodIsNotTooLongForJoda(period) ==>{
+				tuple must computeIdenticalDayCountFor(period)
+			}
 		}
 	}
 

@@ -23,15 +23,15 @@ class DefaultIntervalBuilderTest extends Specification with IntervalGenerators w
 
 
 	def is = s2"""
-							The Interval generators
-										will never fail for Int ${example[Int]}
-									  will never fail for Long ${example[Long]}
-										will never fail for Double ${example[Double]}
-										will never fail for Float ${example[Float]}
-										will never fail for BigDecimal ${example[BigDecimal]}
-										will never fail for BigInteger ${example[BigInt]}
-										will never fail for Byte ${example[Byte]}
-						                                                            """
+										The Interval generators
+											will never fail for Int ${example[Int]}
+										  will never fail for Long ${example[Long]}
+											will never fail for Double ${example[Double]}
+											will never fail for Float ${example[Float]}
+											will never fail for BigDecimal ${example[BigDecimal]}
+											will never fail for BigInteger ${example[BigInt]}
+											will never fail for Byte ${example[Byte]}
+							                                                            """
 
 	implicit val intervalBuilder = DefaultIntervalBuilder
 
