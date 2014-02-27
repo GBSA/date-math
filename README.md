@@ -1,7 +1,7 @@
 date-math
 ========
 
-A library for date calculations for fixed income securities, written Scala, originally based on [jFin](http://jfin.org/wp/).
+A library for date calculations of fixed income securities, written Scala, originally based on [jFin](http://jfin.org/wp/).
 
 
 Why date-math
