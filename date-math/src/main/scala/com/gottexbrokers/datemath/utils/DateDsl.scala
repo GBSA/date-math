@@ -90,28 +90,3 @@ object RichJodaTimeExtensions {
   }
 
 }
-//
-//trait ScalaFinDateMathImplicits extends OrderingImplicits {
-//
-//	implicit def toDateTime(readableDateTime:ReadableDateTime) = readableDateTime.toDateTime
-//
-//}
-//
-//object ScalaFinDateMathImplicits extends ScalaFinDateMathImplicits
-//trait DateDsl extends OrderingImplicits{
-//
-//
-//
-//
-//
-//
-//  def asDayStream(start: DateMidnight, end: DateMidnight): Stream[DateMidnight] = {
-//    if (start > end)
-//      Stream.empty[DateMidnight]
-//    else
-//      Stream.cons(start, asDayStream(start plusDays 1, end))
-//  }
-//
-//}
-//
-//object DateDsl extends DateDsl

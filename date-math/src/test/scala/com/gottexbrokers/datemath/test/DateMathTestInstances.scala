@@ -14,7 +14,7 @@ import com.mbc.jfin.holiday.{HolidayCalendar => MbcHolidaycalendar}
  */
 
 
-trait ScalafinDateMathMocks {
+trait DateMathMocks {
 
   trait SimpleMbcHolidayCalendar extends MbcHolidaycalendar {
 
@@ -30,7 +30,7 @@ trait ScalafinDateMathMocks {
     override def toString = s"SimpleMbcHolidayCalendar backed by $listOfHolidays"
 
 
-    def toScalafinDateMathCalendar: HolidayCalendar = new HolidayCalendar {
+    def toDateMathCalendar: HolidayCalendar = new HolidayCalendar {
 
 	    private implicit def toLocalDate(date: ReadableDateTime): LocalDate = new LocalDate(date.getMillis)
 
@@ -38,7 +38,7 @@ trait ScalafinDateMathMocks {
 
       override def isHoliday(date: ReadableDateTime): Boolean =  self isHoliday date
 
-      override def toString = s"ScalafinDateMathHolidayCalendar backed by $listOfHolidays"
+      override def toString = s"DateMathHolidayCalendar backed by $listOfHolidays"
     }
 
 
@@ -46,9 +46,9 @@ trait ScalafinDateMathMocks {
 
 }
 
-trait ScalafinDateMathTestInstances extends ScalafinDateMathMocks {
+trait DateMathTestInstances extends DateMathMocks {
 
-  implicit def toScalafinDateMathCalendar(mbcHolidayCalendar: SimpleMbcHolidayCalendar): HolidayCalendar = mbcHolidayCalendar.toScalafinDateMathCalendar
+  implicit def toDateMathCalendar(mbcHolidayCalendar: SimpleMbcHolidayCalendar): HolidayCalendar = mbcHolidayCalendar.toDateMathCalendar
 
 }
 

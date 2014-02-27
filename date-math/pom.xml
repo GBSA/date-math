@@ -3,13 +3,9 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>scalafin-datemath-core</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
-    <parent>
-        <groupId>org.scalafin</groupId>
-        <artifactId>scalafin-datemath</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
-    </parent>
+    <groupId>com.gottexbrokersn</groupId>
+    <artifactId>date-math</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
 
     <properties>
         <surefire.settings>-Dspecs2.console -Dspecs2.commandline=html</surefire.settings>

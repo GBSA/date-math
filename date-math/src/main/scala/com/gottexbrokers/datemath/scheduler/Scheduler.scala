@@ -44,13 +44,6 @@ trait StubFirstDetector extends StubDetector {
 
 	self:BackwardScheduler =>
 
-	/**
-	 *
-	 * @param scheduleStart
-	 * @param scheduleEnd
-	 * @param periodLimitDate
-	 * @return
-	 */
 	override def isStubRequiredAt(scheduleStart: ReadableDateTime, scheduleEnd: ReadableDateTime, periodLimitDate: ReadableDateTime): Boolean = {
 		(periodLimitDate compareTo scheduleStart)<0
 	}

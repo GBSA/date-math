@@ -8,15 +8,15 @@ import com.gottexbrokers.datemath.math.Interval
 
 
 
-trait ScalaFinDateMathTestGenerators extends CalendarsGenerators{
+trait DateMathTestGenerators extends CalendarsGenerators with ScheduledFinancialPeriodGenerators{
 
-  self: ScalafinDateMathTestInstances =>
+  self: DateMathTestInstances =>
 
 }
 
 trait CalendarsGenerators extends JodaTimeGenerators {
 
-	self:ScalafinDateMathTestInstances =>
+	self:DateMathTestInstances =>
 	implicit def mbcHolidayCalendarArbitrary = Arbitrary {
 		Arbitrary.arbitrary(Arbitrary.arbContainer[List,LocalDate]).map {
 			dateList =>

@@ -20,7 +20,7 @@ import com.mbc.jfin.holiday.DateAdjustmentService
  *
  */
 
-trait ScalafinDateMathMatchers extends JodaTimeDateMatchers
+trait DateMathMatchers extends JodaTimeDateMatchers
                                        with BusinessDayConventionTupleMatchers
                                        with DayCountConventionTupleMatchers {
 
@@ -49,7 +49,7 @@ trait AdjustmentContext {
 
 	implicit def mbcHolidayCalendar: MbcHolidaycalendar
 
-	implicit def scalaFinDateMathHolidayCalendar: HolidayCalendar
+	implicit def dateMathHolidayCalendar: HolidayCalendar
 
 	implicit def adjustmentService: DateAdjustmentService
 
@@ -62,7 +62,7 @@ object AdjustmentContext {
 
 		override implicit val adjustmentService: DateAdjustmentService = service
 
-		override implicit val scalaFinDateMathHolidayCalendar: HolidayCalendar = conversion(cal)
+		override implicit val dateMathHolidayCalendar: HolidayCalendar = conversion(cal)
 
 		override implicit val mbcHolidayCalendar: MbcHolidaycalendar = cal
 
@@ -85,11 +85,11 @@ trait BusinessDayConventionTupleMatchers extends JodaTimeDateMatchers with MustM
 
 		override def apply[S <: (BusinessDayConvention, JFinBusinessDayConvention)](t: Expectable[S]): MatchResult[S] = {
 
-			val (scalafinDateMathConvention, jfinConvention) = t.value
+			val (dateMathConvention, jfinConvention) = t.value
 			val jfinResultedAdjustDate = adjustmentContext.adjustmentService adjust(localDate, jfinConvention, adjustmentContext.mbcHolidayCalendar)
-			val scalafinAdjustedDate = scalafinDateMathConvention adjust dateTime
-			val matchResult = jfinResultedAdjustDate must beEquivalentTo(scalafinAdjustedDate)
-			val message = s"jfin.$jfinConvention and scalafin-datemath.$scalafinDateMathConvention adjust date $localDate on calendar $mbcHolidayCalendar : ${matchResult.message}"
+			val adjustedDate = dateMathConvention adjust dateTime
+			val matchResult = jfinResultedAdjustDate must beEquivalentTo(adjustedDate)
+			val message = s"jfin.$jfinConvention and -datemath.$dateMathConvention adjust date $localDate on calendar $mbcHolidayCalendar : ${matchResult.message}"
 			result(matchResult.isSuccess, message, negateSentence(message), t)
 
 		}
@@ -116,11 +116,11 @@ trait DayCountConventionTupleMatchers extends JodaTimeDateMatchers with MustMatc
 		new Matcher[(DayCountCalculator,JFinDaycountCalculator)]{
 
 			override def apply[S <: (DayCountCalculator, JFinDaycountCalculator)](t: Expectable[S]): MatchResult[S] = {
-				val (scalafinDateMathCalculator, jfinCalculator) = t.value
-				val scalaFinDateMathResult = scalafinDateMathCalculator calculateDayCountFraction period
+				val (dateMathCalculator, jfinCalculator) = t.value
+				val dateMathResult = dateMathCalculator calculateDayCountFraction period
 				val jfinCalculatorResult =  jfinCalculator calculateDaycountFraction period
-				val matchResult = jfinCalculatorResult must_== scalaFinDateMathResult
-				val message = s"jfin.$jfinCalculator and scalafin-datemath.$scalafinDateMathCalculator adjust date $period to $scalaFinDateMathResult and $jfinCalculatorResult: ${matchResult.message}"
+				val matchResult = jfinCalculatorResult must_== dateMathResult
+				val message = s"jfin.$jfinCalculator and -datemath.$dateMathCalculator adjust date $period to $dateMathCalculator and $jfinCalculatorResult: ${matchResult.message}"
 				result(matchResult.isSuccess, message, negateSentence(message), t)
 
 			}

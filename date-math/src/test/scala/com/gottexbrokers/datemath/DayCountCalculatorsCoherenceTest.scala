@@ -24,7 +24,7 @@ class DayCountCalculatorsCoherenceTest extends Specification
                                                    with ScalaCheck
                                                    with FragmentBuildingTools
                                                    with ScheduledFinancialPeriodGenerators
-                                                   with ScalafinDateMathTestInstances
+                                                   with DateMathTestInstances
                                                    with DayCountConventionTupleMatchers
                                                    with JodaTimeGenerators
                                                    with IntervalGenerators
@@ -58,8 +58,8 @@ class DayCountCalculatorsCoherenceTest extends Specification
 
 
 	def testTuple(tuple: (DayCountCalculator, JFinDaycountCalculator))(implicit arbitrary:Arbitrary[PaymentPeriod[DateTime]]):Example = {
-		val (scalafinDateMathCalculator, jfinConvention) = tuple
-		val exampleName = s"jfin.$jfinConvention and scalafin-datemath.$scalafinDateMathCalculator must compute the same value "
+		val (dateMathCalculator, jfinConvention) = tuple
+		val exampleName = s"jfin.$jfinConvention and date-math.$dateMathCalculator must compute the same value "
 		exampleName ! Prop.forAll {
 			(period: PaymentPeriod[DateTime]) => periodIsNotTooLongForJoda(period) ==>{
 				tuple must computeIdenticalDayCountFor(period)
@@ -93,7 +93,7 @@ class DayCountCalculatorsCoherenceTest extends Specification
 		 val arbitrary = Arbitrary{
 			periodGen.arbitrary filter periodIsNotTooLongForJoda
 		}
-		testChunk(nonSplittingDayCountCalculator, "The non-splitting day count calculator should be equivalent between Jfin and scalafin-datemath", testTuple(_: (DayCountCalculator, JFinDaycountCalculator))(arbitrary))
+		testChunk(nonSplittingDayCountCalculator, "The non-splitting day count calculator should be equivalent between Jfin and date-math", testTuple(_: (DayCountCalculator, JFinDaycountCalculator))(arbitrary))
 
 	}
 
@@ -107,7 +107,7 @@ class DayCountCalculatorsCoherenceTest extends Specification
 		val arbitrary = Arbitrary{
 			periodGen.arbitrary filter periodIsNotTooLongForJoda
 		}
-		testChunk(splittingDayCountCalculator, "The non-splitting day count calculator should be equivalent between Jfin and scalafin-datemath", testTuple(_: (DayCountCalculator, JFinDaycountCalculator))(arbitrary))
+		testChunk(splittingDayCountCalculator, "The non-splitting day count calculator should be equivalent between Jfin and date-math", testTuple(_: (DayCountCalculator, JFinDaycountCalculator))(arbitrary))
 
 	}
 

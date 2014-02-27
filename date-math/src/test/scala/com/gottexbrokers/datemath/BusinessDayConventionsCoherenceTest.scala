@@ -20,7 +20,7 @@ class BusinessDayConventionsCoherenceTest extends Specification
                                                   with ScalaCheck
                                                   with FragmentBuildingTools
                                                   with CalendarsGenerators
-                                                  with ScalafinDateMathTestInstances
+                                                  with DateMathTestInstances
                                                   with BusinessDayConventionTupleMatchers
 																									with LongGeneratorWithNoOverflow{
 
@@ -40,11 +40,11 @@ class BusinessDayConventionsCoherenceTest extends Specification
 
 	val service = new DefaultDateAdjustmentServiceImpl()
 
-	override def is: Fragments = testChunk(tuples, "The business day conventions should be equivalent between Jfin and scalafin-datemath", testTuple)
+	override def is: Fragments = testChunk(tuples, "The business day conventions should be equivalent between Jfin and date-math", testTuple)
 
 	def testTuple(tuple: (BusinessDayConvention, JFinBusinessDayConvention)) = {
-		val (scalafinDateMathConvention, jfinConvention) = tuple
-		val exampleName = s"jfin.$jfinConvention and scalafin-datemath.$scalafinDateMathConvention must adjust dates equally "
+		val (dateMathConvention, jfinConvention) = tuple
+		val exampleName = s"jfin.$jfinConvention and date-math.$dateMathConvention must adjust dates equally "
 		 exampleName ! Prop.forAll{
 									(calendar:SimpleMbcHolidayCalendar, dateMillis:Long) =>
 								 val date = new Date(dateMillis)

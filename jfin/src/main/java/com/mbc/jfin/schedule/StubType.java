@@ -69,7 +69,7 @@ public enum StubType
 	 *
 	 * X...X...X...X...X...X...X
 	 */
-	NONE;
+	NONE
 
 
 }
