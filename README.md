@@ -1,7 +1,7 @@
 date-math
 ========
 
-A library for date calculations of fixed income securities, written Scala, originally based on [jFin](http://jfin.org/wp/).
+A library for date calculations of fixed income securities, written in Scala, originally based on [jFin](http://jfin.org/wp/).
 
 
 Why date-math
@@ -11,7 +11,7 @@ Why date-math
 
 1. The original code we downloaded was based on `java.util.Calendar` and `java.util.Date`, mutable data structures. Our code was polluted by `clone` to protect against undesired changes in the parameters provided to the function.
 2. The original code was not designed according to the `SOLID` principles, making it hard to extend and to debug
-3. When we tried to retrieve the last version from the svn trunk, there was a mix of the old source code, in package `org.jin` and new source code in package `com.mbc.jfin` and the code didn't compile
+3. When we tried to retrieve the last version from the svn trunk, there was a mix of the old source code, in package `org.jfin` and new source code in package `com.mbc.jfin` and the code didn't compile
 
 
 As a consequence, we decided to try to rewrite it as a simple exercise. We then decided to publish the result
@@ -24,7 +24,7 @@ The `date-math` didn't want to implement all the features in `jFin`, but just th
 1.  It provides a single entry point, `com.gottexbrokers.datemath` package object, which contains all the key abstractions used in the code
 2.  It relies on the largely used, de-facto standard library for date manipulation in Java: `JodaTime` 
 3.  It is a functional library: the functions are pure, independent and composable. There is no mutable state. 
-4.  It is coded against `JodaTime` interfaces, so that it does not impose restrictions on which concrete class you will be using at runtime
+4.  It is coded against `JodaTime` interfaces, so that it does not impose restrictions on which concrete class you will be using
 5.  It is largely tested using `ScalaCheck` to validate that same abstractions from the two libraries yield the same result
 
 
