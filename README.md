@@ -1,10 +1,10 @@
-scalafin-datemath
+date-math
 ========
 
-A library for date calculations in financial software, written Scala, originally based on [jFin](http://jfin.org/wp/).
+A library for date calculations for fixed income securities, written Scala, originally based on [jFin](http://jfin.org/wp/).
 
 
-Why scalafin-datemath
+Why date-math
 -------
 *jFin* obtained a certain popularity in the financial software environment, as it provided ready-to-use implementations for day count convention, payment date scheduling and so on. We have been using jFin for quite a long time, and it t simply did what we wanted: compute the dates correctly. However, it suffered from major drawbacks:
 
@@ -30,10 +30,6 @@ The `scalafin-datemath` didn't want to implement all the features in `jFin`, but
 3.  It is a functional library: the functions are pure, independent and composable. There is no mutable state. 
 4.  It is coded against `JodaTime` interfaces, so that it does not impose restrictions on which concrete class you will be using at runtime
 5.  It is largely tested using `ScalaCheck` to validate that same abstractions from the two libraries yield the same result
-
-
-Quality
-----------
 
 
 
