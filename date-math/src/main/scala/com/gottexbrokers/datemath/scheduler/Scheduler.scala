@@ -220,24 +220,24 @@ trait NoStubScheduler extends SchedulerSkeleton {
 
 	override def scheduleInternal(frequency: Frequency, start: ReadableDateTime, end: ReadableDateTime): ScheduleResult[ReadableDateTime] = {
 
-		def toList(current:ReadableDateTime,previousItems:List[PaymentPeriod[ReadableDateTime]]):Validation[SchedulingImpossibleException,List[PaymentPeriod[ReadableDateTime]]] = {
+		def toList(current:ReadableDateTime,currentIndex:Int, previousItems:List[PaymentPeriod[ReadableDateTime]]):Validation[SchedulingImpossibleException,List[PaymentPeriod[ReadableDateTime]]] = {
 			// We need double look ahead
-			val nextDate = frequency addTo current
+			val nextDate = frequency.divide(currentIndex) addTo start
 			if((nextDate compareTo end) > 0)
 				Failure(new SchedulingImpossibleException(s"The next scheduled date $nextDate is after the $end of the scheduling interval"))
 			else {
 				if((nextDate compareTo end) == 0){
-					Success( buildPeriod(current,nextDate) :: previousItems )
+					Success( previousItems :+ buildPeriod(current,nextDate)  )
 				}
 				else{
 					val newPeriod = buildPeriod(current,nextDate)
-					toList(nextDate, newPeriod :: previousItems)
+					toList(nextDate,currentIndex+1, previousItems :+ newPeriod )
 				}
 			}
 
 
 		}
-		toList(start, List.empty).map( success => Schedule(success.toStream,start,end))
+		toList(start, 1, List.empty).map( success => Schedule(success.toStream,start,end))
 
 	}
 
