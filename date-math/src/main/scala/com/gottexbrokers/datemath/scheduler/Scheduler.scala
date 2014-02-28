@@ -114,7 +114,7 @@ trait ForwardScheduler extends StubbingScheduler{
 		def toStream(current:ReadableDateTime, currentIndex:Int):Stream[PaymentPeriod[ReadableDateTime]] = {
 			// We need double look ahead
 			val nextDate = frequency.divide(currentIndex) addTo start
-			val nextNextDate = frequency addTo nextDate
+			val nextNextDate = frequency.divide(currentIndex+1)  addTo start
 			if(isStubRequiredAt(start,end,nextNextDate))
 				createStub(end,current,nextDate,nextNextDate)
 			else{

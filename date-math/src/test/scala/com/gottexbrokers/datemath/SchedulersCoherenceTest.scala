@@ -46,6 +46,7 @@ class SchedulersCoherenceTest extends Specification
 
 
 
+
 	implicit val params =  Parameters(workers=16)
 
 	implicit val arbitraryPeriodCount = Arbitrary { Gen.choose(1,100)}
@@ -112,26 +113,25 @@ class SchedulersCoherenceTest extends Specification
 
 
 
-	def e2 = {
-		val scheduler = new ShortStubLastScheduler{
-
-			override implicit def paymentPeriodBuilder: PaymentPeriodBuilder = new SimplePaymentPeriodBuilder{}
-
-			override implicit def intervalBuilder: IntervalBuilder[math.Interval] = DefaultIntervalBuilder
-
-		}
-
-		val jfinScheduler = new ShortLastStubScheduleGenerator()
-
-		val start = DateTime.parse("1969-04-19T00:00:00.000+01:00")
-		val scheduleFrequency = ANNUALLY
-		val endFrequency = DAILY
-		val maxPeriods = 1
-		val end = start plus endFrequency.divide(maxPeriods).period
-		testSchedule(start,end,scheduleFrequency,jfinScheduler,scheduler)
-
-
-	}
+//	def e2 = {
+//		val scheduler = new ShortStubLastScheduler{
+//
+//			override implicit def paymentPeriodBuilder: PaymentPeriodBuilder = new SimplePaymentPeriodBuilder{}
+//
+//			override implicit def intervalBuilder: IntervalBuilder[math.Interval] = DefaultIntervalBuilder
+//
+//		}
+//
+//		val jfinScheduler = new ShortLastStubScheduleGenerator()
+//		val start = DateTime.parse("1969-08-30T00:00:00.000+01:00")
+//		val scheduleFrequency = SEMI_ANNUALLY
+//		val endFrequency = LUNAR_MONTHLY
+//		val maxPeriods = 7
+//		val end = start plus endFrequency.divide(maxPeriods).period
+//		testSchedule(start,end,scheduleFrequency,jfinScheduler,scheduler)
+//
+//
+//	}
 
 
 
