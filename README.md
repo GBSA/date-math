@@ -1,7 +1,9 @@
-date-math
+date-math  [![Build Status](https://travis-ci.org/GBSA/date-math.png?branch=master)](https://travis-ci.org/GBSA/date-math)
 ========
 
 A library for date calculations of fixed income securities, written in Scala, originally based on [jFin](http://jfin.org/wp/).
+
+
 
 
 Why date-math
