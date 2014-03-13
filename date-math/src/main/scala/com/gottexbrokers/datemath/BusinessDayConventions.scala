@@ -5,7 +5,6 @@ import com.gottexbrokers.datemath.utils.RichJodaTimeExtensions._
 import scala.annotation.tailrec
 
 
-
 /**
  * <p>
  * Enumeration of the various business day conventions:

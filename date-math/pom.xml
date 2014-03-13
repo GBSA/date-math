@@ -146,6 +146,18 @@
                     <argLine>${surefire.settings}</argLine>
                 </configuration>
             </plugin>
+            <plugin>
+              <artifactId>maven-source-plugin</artifactId>
+              <executions>
+                <execution>
+                  <id>attach-sources</id>
+                  <phase>install</phase>
+                  <goals>
+                    <goal>jar-no-fork</goal>
+                  </goals> 
+                </execution>
+              </executions>
+            </plugin>
 
         </plugins>
     </build>
