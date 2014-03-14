@@ -67,7 +67,7 @@ class SchedulersCoherenceTest extends Specification
 
 			override implicit def paymentPeriodBuilder: PaymentPeriodBuilder = new SimplePaymentPeriodBuilder {}
 
-			override implicit def intervalBuilder: IntervalBuilder[math.Interval] = DefaultIntervalBuilder
+			override implicit def intervalBuilder: IntervalBuilder[math.Period] = DefaultIntervalBuilder
 
 		}
 		testStubScheduler(new ShortFirstStubScheduleGenerator(), scheduler)
@@ -78,7 +78,7 @@ class SchedulersCoherenceTest extends Specification
 
 			override implicit def paymentPeriodBuilder: PaymentPeriodBuilder = new SimplePaymentPeriodBuilder {}
 
-			override implicit def intervalBuilder: IntervalBuilder[math.Interval] = DefaultIntervalBuilder
+			override implicit def intervalBuilder: IntervalBuilder[math.Period] = DefaultIntervalBuilder
 
 		}
 		testStubScheduler(new LongFirstStubScheduleGenerator(), scheduler)
@@ -89,7 +89,7 @@ class SchedulersCoherenceTest extends Specification
 
 			override implicit def paymentPeriodBuilder: PaymentPeriodBuilder = new SimplePaymentPeriodBuilder {}
 
-			override implicit def intervalBuilder: IntervalBuilder[math.Interval] = DefaultIntervalBuilder
+			override implicit def intervalBuilder: IntervalBuilder[math.Period] = DefaultIntervalBuilder
 
 		}
 		testStubScheduler(new ShortLastStubScheduleGenerator(), scheduler)
@@ -100,7 +100,7 @@ class SchedulersCoherenceTest extends Specification
 
 			override implicit def paymentPeriodBuilder: PaymentPeriodBuilder = new SimplePaymentPeriodBuilder {}
 
-			override implicit def intervalBuilder: IntervalBuilder[math.Interval] = DefaultIntervalBuilder
+			override implicit def intervalBuilder: IntervalBuilder[math.Period] = DefaultIntervalBuilder
 
 		}
 		testStubScheduler(new LongLastStubScheduleGenerator(), scheduler)
@@ -112,7 +112,7 @@ class SchedulersCoherenceTest extends Specification
 
 			override implicit def paymentPeriodBuilder: PaymentPeriodBuilder = new SimplePaymentPeriodBuilder {}
 
-			override implicit def intervalBuilder: IntervalBuilder[math.Interval] = DefaultIntervalBuilder
+			override implicit def intervalBuilder: IntervalBuilder[math.Period] = DefaultIntervalBuilder
 
 		}
 		val jfinScheduler = new NoStubScheduleGenerator()
@@ -142,7 +142,7 @@ class SchedulersCoherenceTest extends Specification
 
 				override implicit def paymentPeriodBuilder: PaymentPeriodBuilder = new SimplePaymentPeriodBuilder{}
 
-				override implicit def intervalBuilder: IntervalBuilder[math.Interval] = DefaultIntervalBuilder
+				override implicit def intervalBuilder: IntervalBuilder[math.Period] = DefaultIntervalBuilder
 
 			}
 

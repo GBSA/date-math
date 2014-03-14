@@ -4,7 +4,7 @@ import org.scalacheck.{Arbitrary, Gen}
 import org.joda.time._
 import com.gottexbrokers.datemath.PaymentPeriod
 import scalaz.Show
-import com.gottexbrokers.datemath.math.Interval
+import com.gottexbrokers.datemath.math.Period
 
 
 
@@ -122,12 +122,12 @@ trait ScheduledFinancialPeriodGenerators {
 
 
 	def arbitraryFinancialPeriodWithNoReference[T]
-	(implicit intervalArbitrary:Arbitrary[Interval[T]], show:Show[Interval[T]]):Arbitrary[PaymentPeriod[T]] = Arbitrary {
+	(implicit intervalArbitrary:Arbitrary[Period[T]], show:Show[Period[T]]):Arbitrary[PaymentPeriod[T]] = Arbitrary {
 		intervalArbitrary.arbitrary.map {
 			interval =>
 				new PaymentPeriod[T] {
-				override def actual: Interval[T] = interval
-				override def reference:Option[Interval[T]] = None
+				override def actual: Period[T] = interval
+				override def reference:Option[Period[T]] = None
 
 				override def toString = s"Actual: ${show shows actual} reference: ${reference map show.shows}"
 			}

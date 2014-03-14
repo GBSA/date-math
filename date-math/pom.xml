@@ -116,6 +116,8 @@
                         <id>compile</id>
                         <goals>
                             <goal>compile</goal>
+                            <goal>doc</goal>
+                            <goal>doc-jar</goal>
                         </goals>
                         <phase>compile</phase>
                     </execution>

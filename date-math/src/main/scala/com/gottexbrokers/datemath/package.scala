@@ -3,7 +3,6 @@ package com.gottexbrokers
 import org.joda.time._
 import scalaz.Validation
 import com.gottexbrokers.datemath.scheduler.Schedule
-import com.gottexbrokers.datemath.math.Interval
 
 
 /**
@@ -15,7 +14,7 @@ import com.gottexbrokers.datemath.math.Interval
  */
 package object datemath {
 
-  type DateInterval = Interval[ReadableDateTime]
+  type DateInterval = Period[ReadableDateTime]
 
 	type ScheduleResult[T] = Validation[SchedulingImpossibleException, Schedule[ReadableDateTime]]
 

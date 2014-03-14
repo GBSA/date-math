@@ -37,7 +37,7 @@ class DayCountCalculatorsCoherenceTest extends Specification
 	override val defaultPrettyParams = Pretty.Params(2)
 
 	def periodIsNotTooLongForJoda(paymentPeriod:PaymentPeriod[DateTime]):Boolean  ={
-		def intervalIsNotTooLongForJoda(interval:math.Interval[DateTime]):Boolean = {
+		def intervalIsNotTooLongForJoda(interval:math.Period[DateTime]):Boolean = {
 			Math.abs( (interval.end.getMillis - interval.start.getMillis)/DateTimeConstants.MILLIS_PER_DAY)  < Int.MaxValue
 		}
 		intervalIsNotTooLongForJoda(paymentPeriod.actual) &&  (paymentPeriod.reference map intervalIsNotTooLongForJoda).getOrElse(true)
@@ -51,7 +51,7 @@ class DayCountCalculatorsCoherenceTest extends Specification
 	import PaymentPeriodShows._
 
 	def daysIn(paymentPeriod:PaymentPeriod[DateTime]):Int = {
-		def days(interval:math.Interval[DateTime]):Int = Days.daysBetween(interval.start,interval.end).getDays
+		def days(interval:math.Period[DateTime]):Int = Days.daysBetween(interval.start,interval.end).getDays
 		Math.max(days(paymentPeriod.actual) , (paymentPeriod.reference map days).getOrElse(0))
 	}
 

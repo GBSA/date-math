@@ -1,9 +1,10 @@
 package com.gottexbrokers.datemath
 
-import com.gottexbrokers.datemath.math.Interval
-import org.joda.time.{DateTime, ReadablePeriod, DateTimeConstants, ReadableDateTime}
+import org.joda.time._
 import scalaz.Validation
+import scala.annotation.tailrec
 import com.gottexbrokers.datemath.scheduler.Schedule
+
 
 /**
  * Created with IntelliJ IDEA.
@@ -12,48 +13,8 @@ import com.gottexbrokers.datemath.scheduler.Schedule
  * Time: 12:53
  *
  */
-trait PaymentPeriod[A]{
-
-	self =>
-
-	def actual:Interval[A]
-
-	def reference: Option[Interval[A]]
-
-	def asMoreGeneric[B>:A](implicit ordering:Ordering[B]) = new PaymentPeriod[B] {
-
-		def actual = self.actual.asMoreGeneric[B]
-
-		def reference = self.reference.map{_.asMoreGeneric[B]}
-	}
-
-}
 
 
-
-trait PaymentPeriodBuilder{
-
-	def build[A](actual: Interval[A], reference: Option[Interval[A]]):PaymentPeriod[A]
-
-}
-
-trait SimplePaymentPeriodBuilder extends PaymentPeriodBuilder{
-
-	def build[A](actual1: Interval[A], reference1: Option[Interval[A]]):PaymentPeriod[A]={
-
-		new PaymentPeriod[A] {
-
-			override def reference: Option[Interval[A]] = reference1
-
-			override def actual: Interval[A] = actual1
-
-		}
-
-	}
-
-}
-
-object SimplePaymentPeriodBuilder extends SimplePaymentPeriodBuilder
 
 
 trait HolidayCalendar {
@@ -65,7 +26,7 @@ trait HolidayCalendar {
 
 object HolidayCalendar {
 
-	lazy val WeekendOnlyHolidayCalendar = new HolidayCalendar {
+	val WeekendOnlyHolidayCalendar:HolidayCalendar = new HolidayCalendar {
 
 		override def isWeekend(date: ReadableDateTime): Boolean =  date.getDayOfWeek == DateTimeConstants.SATURDAY || date.getDayOfWeek == DateTimeConstants.SUNDAY
 
@@ -125,9 +86,12 @@ trait DayCountConvention{
 
 trait DayCountCalculator {
 
-	def calculateDayCountFraction(period: PaymentPeriod[ReadableDateTime]): Double
+	def calculateDayCountFraction(start:ReadableDateTime, end:ReadableDateTime): Double
 
-	def apply(period: PaymentPeriod[ReadableDateTime]): Double = calculateDayCountFraction(period)
+
+	def apply(start:ReadableDateTime, end:ReadableDateTime): Double = calculateDayCountFraction(start,end)
+
+	def apply[A<:ReadableDateTime](period:Period[A]):Double = apply(period.start,period.end)
 
 }
 
@@ -140,6 +104,43 @@ trait Scheduler {
 
 
 	def schedule(frequency:Frequency, start: ReadableDateTime, end: ReadableDateTime):Validation[SchedulingImpossibleException, Schedule[ReadableDateTime]]
+
+}
+
+trait Period[+A]{
+
+	def start:A
+
+	def end:A
+
+	import Ordering.Implicits._
+
+	def contains[B>:A](point: B)(implicit ordering:Ordering[B]): Boolean = start < point && end > point
+
+}
+
+
+case class TimePeriod[+A<:ReadableDateTime](start:A, end:A) extends Period[A]{
+
+
+	import com.gottexbrokers.datemath.utils.OrderingImplicits._
+
+
+	def splitInArrear[B>:A<:ReadableDateTime](f: (B) => B): Seq[TimePeriod[B]] = {
+		@tailrec
+		def splitInArrear(currentInterval:TimePeriod[B], currentSplits:Seq[TimePeriod[B]]):Seq[TimePeriod[B]] = {
+			val previousInstant = f(currentInterval.end)
+			if (previousInstant <= start)
+				currentInterval +: currentSplits
+			else {
+				val lastPartOfCurrentInterval = TimePeriod[B] (previousInstant, end)
+				val firstPartOfCurrentInterval = TimePeriod[B] (start, previousInstant)
+				splitInArrear(firstPartOfCurrentInterval, lastPartOfCurrentInterval +: currentSplits)
+			}
+		}
+		splitInArrear(this, Seq.empty[TimePeriod[B]])
+	}
+
 
 }
 

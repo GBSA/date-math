@@ -2,11 +2,6 @@ package com.gottexbrokers.datemath.utils
 
 import org.joda.time.field.AbstractReadableInstantFieldProperty
 import org.joda.time._
-import com.gottexbrokers.datemath._
-import scala.annotation.tailrec
-import com.gottexbrokers.datemath.math.Interval
-
-
 
 /**
  * Created with IntelliJ IDEA.
@@ -28,13 +23,6 @@ trait OrderingImplicits {
   implicit def readableInstantSubClassOrdering[A<:ReadableInstant] = comparableOrderBy[A,ReadableInstant]
 
   implicit def readableInstantSubclassToInfixOps[A](a:A)(implicit ev: A <:< ReadableInstant) :scala.math.Ordering[ReadableInstant]#Ops = comparableToInfixOps[A,ReadableInstant](a)
-
-}
-
-trait Generifiers {
-
-
-	implicit def generifyPaymentPeriod[A,B>:A](paymentPeriod:PaymentPeriod[A])(implicit ordering:Ordering[B]) = paymentPeriod.asMoreGeneric[B]
 
 }
 
@@ -65,28 +53,8 @@ object RichJodaTimeExtensions {
 
   }
 
-  implicit class RichDateIntervalProperty[A<:ReadableDateTime](val interval:Interval[A] ) extends AnyVal{
 
-    import OrderingImplicits._
 
-    final def businessDaysAccordingTo(implicit holidayCalendar:HolidayCalendar): Long = {
 
-      import DateAdjustmentTools._
-
-      @tailrec
-      def getBusinessDaysBetween(start:ReadableDateTime,end:ReadableDateTime, counter:Int):Long ={
-        if (start >= end) {
-          counter + 1
-        } else {
-          val advancedResult = advance(start,holidayCalendar, 1,UnadjustedBusinessDayConvention)
-          getBusinessDaysBetween(advancedResult, end, counter+1)
-        }
-      }
-      // In an interval the start never follows the end, so we are sure the API call is correct
-      getBusinessDaysBetween(interval.start,interval.end,0)
-
-    }
-
-  }
 
 }

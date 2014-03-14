@@ -12,9 +12,9 @@ import scalaz.Validation
  */
 trait IntervalGenerators {
 
-	implicit def intervalArbitrary1[A](implicit ordering:Ordering[A], startGen:Arbitrary[A], endGen: A => Gen[A],intervalBuilder:IntervalBuilder[Interval]):Arbitrary[Validation[InvalidIntervalException,Interval[A]]] = {
+	implicit def intervalArbitrary1[A](implicit ordering:Ordering[A], startGen:Arbitrary[A], endGen: A => Gen[A],intervalBuilder:IntervalBuilder[Period]):Arbitrary[Validation[InvalidIntervalException,Period[A]]] = {
 		import Ordering.Implicits._
-		Arbitrary[Validation[InvalidIntervalException,Interval[A]]] (
+		Arbitrary[Validation[InvalidIntervalException,Period[A]]] (
 			for {
 				start <- Arbitrary.arbitrary[A]
 				end <- endGen(start).filter {_ >= start}
@@ -25,7 +25,7 @@ trait IntervalGenerators {
 
 	object IndepedendentExtremesIntervalGenerator {
 
-		implicit  def intervalArbitrary[A](implicit ordering:Ordering[A], gen:Arbitrary[A], intervalBuilder:IntervalBuilder[Interval]):Arbitrary[Interval[A]] = {
+		implicit  def intervalArbitrary[A](implicit ordering:Ordering[A], gen:Arbitrary[A], intervalBuilder:IntervalBuilder[Period]):Arbitrary[Period[A]] = {
 			implicit val secondGen = (a:A) => gen.arbitrary
 			Arbitrary ( intervalArbitrary1[A].arbitrary.map( _.toOption.get ) )
 
@@ -36,7 +36,7 @@ trait IntervalGenerators {
 	object MaxSizedGenerator{
 
 		implicit def maxSizedIntervalArbitrary[A,B](implicit ordering:Ordering[A], genStart:Arbitrary[A], genEnd:Gen[B],
-			adder: (A,B) => A , intervalBuilder:IntervalBuilder[Interval]):Arbitrary[Interval[A]] = {
+			adder: (A,B) => A , intervalBuilder:IntervalBuilder[Period]):Arbitrary[Period[A]] = {
 
 			implicit val secondGen: A => Gen[A] = (a:A) => genEnd.map { b => adder(a,b)   }
 			Arbitrary ( intervalArbitrary1[A].arbitrary.map( _.toOption.get ) )

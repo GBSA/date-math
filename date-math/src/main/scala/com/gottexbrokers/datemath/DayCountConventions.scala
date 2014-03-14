@@ -30,6 +30,10 @@ object DayCountConventions {
     val calculator = EU30360DayCountCalculator
   }
 
+	case object EU30360ISDA extends DayCountConvention{
+		val calculator = EU30360ISDADayCountCalculator
+	}
+
   case object ISDAActualActual extends DayCountConvention  {
     val calculator = ISDAActualActualDayCountCalculator
   }
@@ -38,9 +42,13 @@ object DayCountConventions {
     val calculator = IT30360DayCountCalculator
   }
 
-  case object US30360 extends DayCountConvention  {
-    val calculator = US30360DayCountCalculator
+  case object US30360Eom extends DayCountConvention  {
+    val calculator = new US30360DayCountCalculator(true)
   }
+
+	case object US30360NotEom extends DayCountConvention  {
+		val calculator = new US30360DayCountCalculator(false)
+	}
 
   case class ISMAActualActual(frequency:Frequency with ExactFitInYear) extends DayCountConvention {
     val calculator = new ISMAActualActualDayCountCalculator(frequency)

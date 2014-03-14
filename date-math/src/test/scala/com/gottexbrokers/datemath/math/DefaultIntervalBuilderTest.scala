@@ -37,7 +37,7 @@ class DefaultIntervalBuilderTest extends Specification with IntervalGenerators w
 
 	def example[T](implicit ordering:Ordering[T], arbitrary:Arbitrary[T]) = {
 		Prop.forAll{
-			(t:Validation[InvalidIntervalException,Interval[T]]) => t must beLike{
+			(t:Validation[InvalidIntervalException,Period[T]]) => t must beLike{
 				case Success(_) => ok
 			}
 		}

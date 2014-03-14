@@ -42,7 +42,7 @@ class MaxSizedGeneratorTest extends Specification
 					implicit val adder  = (dateTime:DateTime,millis:Long) => dateTime plus millis
 					implicit val arb = maxSizedIntervalArbitrary[DateTime,Long]
 					Prop.forAll{
-						(interval:Interval[DateTime]) =>  (interval.end.getMillis - interval.start.getMillis ) must beLessThanOrEqualTo(l)
+						(interval:Period[DateTime]) =>  (interval.end.getMillis - interval.start.getMillis ) must beLessThanOrEqualTo(l)
 					}
 				}
 			}

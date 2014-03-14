@@ -132,9 +132,9 @@ trait PeriodMatchers extends MustMatchers with JodaTimeDateMatchers{
 
 	def beTheSameInstantAs(instant:ReadableInstant):Matcher[ReadableDateTime]
 
-	def be(start:ReadableInstant, end:ReadableInstant):Matcher[math.Interval[ReadableDateTime]] = new Matcher[math.Interval[ReadableDateTime]]{
+	def be(start:ReadableInstant, end:ReadableInstant):Matcher[math.Period[ReadableDateTime]] = new Matcher[math.Period[ReadableDateTime]]{
 
-		override def apply[S <: math.Interval[ReadableDateTime]](t: Expectable[S]): MatchResult[S] = {
+		override def apply[S <: math.Period[ReadableDateTime]](t: Expectable[S]): MatchResult[S] = {
 			val interval = t.value
 			val startIsCorrect = interval.start aka "The start of interval " must beTheSameInstantAs(start)
 			val endIsCorrect = interval.end aka "The end of interval " must beTheSameInstantAs(end)
@@ -166,9 +166,9 @@ trait ComparableMatchers extends Sentences{
 
 trait ScheduleMatchers extends MatchersImplicits with MustMatchers with JodaTimeDateMatchers{
 
-	def beAnIntervalEquivalentTo(start:ReadablePartial, end:ReadablePartial):Matcher[math.Interval[ReadableDateTime]] = new Matcher[math.Interval[ReadableDateTime]]{
+	def beAnIntervalEquivalentTo(start:ReadablePartial, end:ReadablePartial):Matcher[math.Period[ReadableDateTime]] = new Matcher[math.Period[ReadableDateTime]]{
 
-		override def apply[S <: math.Interval[ReadableDateTime]](t: Expectable[S]): MatchResult[S] = {
+		override def apply[S <: math.Period[ReadableDateTime]](t: Expectable[S]): MatchResult[S] = {
 			val interval = t.value
 			val startIsCorrect = start aka "The start of interval" must beEquivalentTo(interval.start)
 			val endIsCorrect = end aka "The end of interval " must beEquivalentTo(interval.end)

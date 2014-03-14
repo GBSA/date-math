@@ -57,7 +57,7 @@ class SimpleSchedulerTests extends Specification
 
 			override implicit def paymentPeriodBuilder: PaymentPeriodBuilder = new SimplePaymentPeriodBuilder{}
 
-			override implicit def intervalBuilder: IntervalBuilder[math.Interval] = DefaultIntervalBuilder
+			override implicit def intervalBuilder: IntervalBuilder[math.Period] = DefaultIntervalBuilder
 
 		}
 		val start = new DateTime(2010,1,15,0,0,0)
@@ -83,7 +83,7 @@ class SimpleSchedulerTests extends Specification
 
 			override def paymentPeriodBuilder: PaymentPeriodBuilder = new SimplePaymentPeriodBuilder{}
 
-			override def intervalBuilder: IntervalBuilder[math.Interval] = DefaultIntervalBuilder
+			override def intervalBuilder: IntervalBuilder[math.Period] = DefaultIntervalBuilder
 
 		}
 		val start = new DateTime(2010,1,15,0,0,0)
@@ -111,7 +111,7 @@ class SimpleSchedulerTests extends Specification
 
 			override implicit def paymentPeriodBuilder: PaymentPeriodBuilder = new SimplePaymentPeriodBuilder{}
 
-			override implicit def intervalBuilder: IntervalBuilder[math.Interval] = DefaultIntervalBuilder
+			override implicit def intervalBuilder: IntervalBuilder[math.Period] = DefaultIntervalBuilder
 		}
 		val start = new DateTime(2010,1,15,0,0,0)
 		val lastPeriodReferenceEnd = new DateTime(2010,10,15,0,0,0)
@@ -139,7 +139,7 @@ class SimpleSchedulerTests extends Specification
 
 			override implicit def paymentPeriodBuilder: PaymentPeriodBuilder = new SimplePaymentPeriodBuilder{}
 
-			override implicit def intervalBuilder: IntervalBuilder[math.Interval] = DefaultIntervalBuilder
+			override implicit def intervalBuilder: IntervalBuilder[math.Period] = DefaultIntervalBuilder
 
 		}
 
@@ -169,7 +169,7 @@ class SimpleSchedulerTests extends Specification
 
 			override implicit def paymentPeriodBuilder: PaymentPeriodBuilder = new SimplePaymentPeriodBuilder{}
 
-			override implicit def intervalBuilder: IntervalBuilder[math.Interval] = DefaultIntervalBuilder
+			override implicit def intervalBuilder: IntervalBuilder[math.Period] = DefaultIntervalBuilder
 
 		}
 
@@ -197,7 +197,7 @@ class SimpleSchedulerTests extends Specification
 
 			override implicit def paymentPeriodBuilder: PaymentPeriodBuilder = new SimplePaymentPeriodBuilder{}
 
-			override implicit def intervalBuilder: IntervalBuilder[math.Interval] = DefaultIntervalBuilder
+			override implicit def intervalBuilder: IntervalBuilder[math.Period] = DefaultIntervalBuilder
 
 		}
 

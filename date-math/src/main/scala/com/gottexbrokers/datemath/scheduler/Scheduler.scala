@@ -8,7 +8,8 @@ import scalaz.{Success, Failure, Validation}
 import scalaz.Failure
 import scala.Some
 import scalaz.Success
-import com.gottexbrokers.datemath.math.{IntervalBuilder, Interval}
+import scala.collection.immutable.Stream.cons
+
 
 /**
  * Created with IntelliJ IDEA.
@@ -20,9 +21,6 @@ import com.gottexbrokers.datemath.math.{IntervalBuilder, Interval}
 
 trait SchedulerSkeleton extends Scheduler with OrderingImplicits{
 
-	def intervalBuilder:IntervalBuilder[Interval]
-
-	def paymentPeriodBuilder:PaymentPeriodBuilder
 
 	override def schedule(frequency: Frequency, start: ReadableDateTime, end: ReadableDateTime): ScheduleResult[ReadableDateTime]  = {
 		if( (end compareTo start)<0)
@@ -80,14 +78,13 @@ trait BackwardScheduler extends StubbingScheduler{
 
 	override protected def scheduleInternal(frequency: Frequency, start: ReadableDateTime, end: ReadableDateTime): ScheduleResult[ReadableDateTime] = {
 		@tailrec
-		def toStream(current:ReadableDateTime, index:Int, previousPeriods:Stream[PaymentPeriod[ReadableDateTime]]):Stream[PaymentPeriod[ReadableDateTime]] = {
+		def toStream(current:ReadableDateTime, index:Int, previousPeriods:Stream[TimePeriod[ReadableDateTime]]):Stream[TimePeriod[ReadableDateTime]] = {
 			// This is necessary because adding 2 months to 30 jan is different to add a month to 30 jan and then add a second month
 			val nextDate = frequency.divide(index) subtractFrom end
 			if(isStubRequiredAt(start,end,nextDate))
 				createStub(start,nextDate,current,previousPeriods)
 			else{
-				val newActual = intervalBuilder unsafe (nextDate, current)
-				val period = paymentPeriodBuilder build (newActual,None)
+				val period = TimePeriod(nextDate, current)
 				val newStream = Stream cons (period, previousPeriods)
 				if((nextDate compareTo start)==0)
 					newStream
@@ -95,11 +92,11 @@ trait BackwardScheduler extends StubbingScheduler{
 				toStream(nextDate, index+1,newStream)
 			}
 		}
-		Success(Schedule(toStream(end,1,Stream.empty[PaymentPeriod[ReadableDateTime]]),start,end))
+		Success(Schedule(toStream(end,1,Stream.empty[TimePeriod[ReadableDateTime]]),start,end))
 	}
 
 	def createStub(start:ReadableDateTime, nextPeriodTheoricExtreme:ReadableDateTime, current:ReadableDateTime,
-		previousPeriods:Stream[PaymentPeriod[ReadableDateTime]]):Stream[PaymentPeriod[ReadableDateTime]]
+		previousPeriods:Stream[TimePeriod[ReadableDateTime]]):Stream[TimePeriod[ReadableDateTime]]
 
 }
 
@@ -111,22 +108,21 @@ trait ForwardScheduler extends StubbingScheduler{
 
 	override protected def scheduleInternal(frequency: Frequency, start: ReadableDateTime, end: ReadableDateTime): ScheduleResult[ReadableDateTime] = {
 
-		def toStream(current:ReadableDateTime, currentIndex:Int):Stream[PaymentPeriod[ReadableDateTime]] = {
+		def toStream(current:ReadableDateTime, currentIndex:Int):Stream[TimePeriod[ReadableDateTime]] = {
 			// We need double look ahead
 			val nextDate = frequency.divide(currentIndex) addTo start
 			val nextNextDate = frequency.divide(currentIndex+1)  addTo start
 			if(isStubRequiredAt(start,end,nextNextDate))
 				createStub(end,current,nextDate,nextNextDate)
 			else{
-				val newActual = intervalBuilder unsafe (current,nextDate)
-				val period = paymentPeriodBuilder build (newActual,None)
+				val period = TimePeriod(current,nextDate)
 				Stream.cons(period, toStream(nextDate,currentIndex+1) )
 			}
 		}
 		Success(Schedule(toStream(start,1),start,end))
 	}
 
-	def createStub(end:ReadableDateTime, current:ReadableDateTime, nextDate:ReadableDateTime, nextNextDate:ReadableDateTime):Stream[PaymentPeriod[ReadableDateTime]]
+	def createStub(end:ReadableDateTime, current:ReadableDateTime, nextDate:ReadableDateTime, nextNextDate:ReadableDateTime):Stream[TimePeriod[ReadableDateTime]]
 
 
 
@@ -138,11 +134,8 @@ trait ShortStubFirstScheduler extends BackwardScheduler
 
 
 	def createStub(start:ReadableDateTime, nextPeriodTheoricExtreme:ReadableDateTime, current:ReadableDateTime,
-		previousPeriods:Stream[PaymentPeriod[ReadableDateTime]]):Stream[PaymentPeriod[ReadableDateTime]] =  {
-
-		val newActual = intervalBuilder unsafe (start, current)
-		val newReference = intervalBuilder unsafe (nextPeriodTheoricExtreme,current)
-		val period = paymentPeriodBuilder build (newActual,Some(newReference))
+		previousPeriods:Stream[TimePeriod[ReadableDateTime]]):Stream[TimePeriod[ReadableDateTime]] =  {
+		val period = TimePeriod (start, current)
 		Stream cons (period, previousPeriods)
 
 	}
@@ -154,15 +147,13 @@ trait LongStubFirstScheduler extends BackwardScheduler
                                      with StubFirstDetector {
 
 	def createStub(start:ReadableDateTime, nextPeriodTheoricExtreme:ReadableDateTime, current:ReadableDateTime,
-		previousPeriods:Stream[PaymentPeriod[ReadableDateTime]]):Stream[PaymentPeriod[ReadableDateTime]] = {
+		previousPeriods:Stream[TimePeriod[ReadableDateTime]]):Stream[TimePeriod[ReadableDateTime]] = {
 
 		if(previousPeriods.isEmpty)
 			previousPeriods
 		else{
 			val previousHead = previousPeriods.head
-			val reference = previousHead.actual
-			val newActual = intervalBuilder unsafe (start, reference.end)
-			val period = paymentPeriodBuilder build (newActual,Some(reference))
+			val period = TimePeriod (start, previousHead.end)
 			Stream cons (period, previousPeriods.tail)
 		}
 
@@ -174,16 +165,16 @@ trait ShortStubLastScheduler extends ForwardScheduler
 																			with StubLastDetector {
 
 
-	override def createStub(end: ReadableDateTime, current: ReadableDateTime, nextDate: ReadableDateTime, nextNextDate: ReadableDateTime): Stream[PaymentPeriod[ReadableDateTime]] = {
+	override def createStub(end: ReadableDateTime, current: ReadableDateTime, nextDate: ReadableDateTime, nextNextDate: ReadableDateTime): Stream[TimePeriod[ReadableDateTime]] = {
 		if((nextDate compareTo end)>0){
 			// Extreme degenerate case, 1 period only
-			val stubbedPeriod = paymentPeriodBuilder build (intervalBuilder unsafe(current,end), Some(intervalBuilder unsafe(current,nextDate)))
+			val stubbedPeriod = TimePeriod(current,end)
 			Stream cons (stubbedPeriod , Stream.empty)
 		}
 		else {
-			val nonStubbedPeriod = paymentPeriodBuilder build (intervalBuilder unsafe(current,nextDate), None)
-			val stubbedPeriod = paymentPeriodBuilder build (intervalBuilder unsafe(nextDate,end), Some(intervalBuilder unsafe(nextDate,nextNextDate)))
-			Stream cons (nonStubbedPeriod , Stream cons (stubbedPeriod, Stream.empty[PaymentPeriod[ReadableDateTime]] ))
+			val nonStubbedPeriod = TimePeriod(current,nextDate)
+			val stubbedPeriod = TimePeriod(nextDate,end)
+			Stream cons (nonStubbedPeriod , Stream cons (stubbedPeriod, Stream.empty[TimePeriod[ReadableDateTime]] ))
 		}
 
 	}
@@ -195,9 +186,9 @@ trait ShortStubLastScheduler extends ForwardScheduler
 trait LongStubLastScheduler extends ForwardScheduler
                                     with StubLastDetector {
 
-	override def createStub(end: ReadableDateTime, current: ReadableDateTime, nextDate: ReadableDateTime, nextNextDate: ReadableDateTime): Stream[PaymentPeriod[ReadableDateTime]] = {
-		val stubbedPeriod = paymentPeriodBuilder build (intervalBuilder unsafe(current,end), Some(intervalBuilder unsafe(current,nextDate)))
-		Stream cons (stubbedPeriod, Stream.empty[PaymentPeriod[ReadableDateTime]] )
+	override def createStub(end: ReadableDateTime, current: ReadableDateTime, nextDate: ReadableDateTime, nextNextDate: ReadableDateTime): Stream[TimePeriod[ReadableDateTime]] = {
+		val stubbedPeriod =TimePeriod(current,end)
+		Stream cons (stubbedPeriod, Stream.empty[TimePeriod[ReadableDateTime]] )
 	}
 
 
@@ -206,9 +197,8 @@ trait LongStubLastScheduler extends ForwardScheduler
 trait NoStubScheduler extends SchedulerSkeleton {
 
 
-	private def buildPeriod(periodStart:ReadableDateTime,periodEnd:ReadableDateTime):PaymentPeriod[ReadableDateTime] = {
-		paymentPeriodBuilder build ( intervalBuilder unsafe (periodStart,periodEnd), None)
-	}
+	private def buildPeriod(periodStart:ReadableDateTime,periodEnd:ReadableDateTime):TimePeriod[ReadableDateTime] = TimePeriod(periodStart,periodEnd)
+
 
 
 
@@ -220,7 +210,7 @@ trait NoStubScheduler extends SchedulerSkeleton {
 
 	override def scheduleInternal(frequency: Frequency, start: ReadableDateTime, end: ReadableDateTime): ScheduleResult[ReadableDateTime] = {
 
-		def toList(current:ReadableDateTime,currentIndex:Int, previousItems:List[PaymentPeriod[ReadableDateTime]]):Validation[SchedulingImpossibleException,List[PaymentPeriod[ReadableDateTime]]] = {
+		def toList(current:ReadableDateTime,currentIndex:Int, previousItems:List[TimePeriod[ReadableDateTime]]):Validation[SchedulingImpossibleException,List[TimePeriod[ReadableDateTime]]] = {
 			// We need double look ahead
 			val nextDate = frequency.divide(currentIndex) addTo start
 			if((nextDate compareTo end) > 0)
