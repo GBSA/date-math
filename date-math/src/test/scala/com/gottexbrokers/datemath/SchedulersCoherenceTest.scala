@@ -3,7 +3,6 @@ package com.gottexbrokers.datemath
 import org.specs2.{ScalaCheck, Specification}
 import org.specs2.specification.Example
 import com.gottexbrokers.datemath.scheduler._
-import com.gottexbrokers.datemath.math.{DefaultIntervalBuilder, IntervalBuilder}
 import com.mbc.jfin.schedule.impl._
 import org.scalacheck.{Gen, Arbitrary, Prop}
 import org.joda.time.{LocalDate, DateTime}
@@ -63,58 +62,28 @@ class SchedulersCoherenceTest extends Specification
 	}
 
 	def shortStubFirstCoherent: Prop = {
-		val scheduler = new ShortStubFirstScheduler {
-
-			override implicit def paymentPeriodBuilder: PaymentPeriodBuilder = new SimplePaymentPeriodBuilder {}
-
-			override implicit def intervalBuilder: IntervalBuilder[math.Period] = DefaultIntervalBuilder
-
-		}
+		val scheduler = new ShortStubFirstScheduler {}
 		testStubScheduler(new ShortFirstStubScheduleGenerator(), scheduler)
 	}
 
 	def longStubFirstCoherent: Prop = {
-		val scheduler = new LongStubFirstScheduler {
-
-			override implicit def paymentPeriodBuilder: PaymentPeriodBuilder = new SimplePaymentPeriodBuilder {}
-
-			override implicit def intervalBuilder: IntervalBuilder[math.Period] = DefaultIntervalBuilder
-
-		}
+		val scheduler = new LongStubFirstScheduler {}
 		testStubScheduler(new LongFirstStubScheduleGenerator(), scheduler)
 	}
 
 	def shortStubLastCoherent: Prop = {
-		val scheduler = new ShortStubLastScheduler {
-
-			override implicit def paymentPeriodBuilder: PaymentPeriodBuilder = new SimplePaymentPeriodBuilder {}
-
-			override implicit def intervalBuilder: IntervalBuilder[math.Period] = DefaultIntervalBuilder
-
-		}
+		val scheduler = new ShortStubLastScheduler {}
 		testStubScheduler(new ShortLastStubScheduleGenerator(), scheduler)
 	}
 
 	def longStubLastCoherent: Prop = {
-		val scheduler = new LongStubLastScheduler {
-
-			override implicit def paymentPeriodBuilder: PaymentPeriodBuilder = new SimplePaymentPeriodBuilder {}
-
-			override implicit def intervalBuilder: IntervalBuilder[math.Period] = DefaultIntervalBuilder
-
-		}
+		val scheduler = new LongStubLastScheduler {}
 		testStubScheduler(new LongLastStubScheduleGenerator(), scheduler)
 	}
 
 
 	def noStubSchedulerCoherent: Prop = {
-		val scheduler = new NoStubScheduler {
-
-			override implicit def paymentPeriodBuilder: PaymentPeriodBuilder = new SimplePaymentPeriodBuilder {}
-
-			override implicit def intervalBuilder: IntervalBuilder[math.Period] = DefaultIntervalBuilder
-
-		}
+		val scheduler = new NoStubScheduler {}
 		val jfinScheduler = new NoStubScheduleGenerator()
 		Prop.forAll {
 			(start: DateTime, scheduleFrequency: Frequency, maxPeriods: Int) => {
@@ -138,14 +107,7 @@ class SchedulersCoherenceTest extends Specification
 
 
 		def e2 = {
-			val scheduler = new NoStubScheduler{
-
-				override implicit def paymentPeriodBuilder: PaymentPeriodBuilder = new SimplePaymentPeriodBuilder{}
-
-				override implicit def intervalBuilder: IntervalBuilder[math.Period] = DefaultIntervalBuilder
-
-			}
-
+			val scheduler = new NoStubScheduler{}
 			val jfinScheduler = new NoStubScheduleGenerator()
 			val start = DateTime.parse("1970-01-01T00:00:00.000+01:00")
 			val scheduleFrequency = QUARTERLY

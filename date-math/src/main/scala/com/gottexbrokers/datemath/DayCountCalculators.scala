@@ -88,7 +88,7 @@ object DayCountCalculators {
 
 	object YearMonthDayTuple{
 
-		def apply(readableDateTime:ReadableDateTime):YearMonthDayTuple = YearMonthDayTuple(readableDateTime.getYearOfEra, readableDateTime.getMonthOfYear,readableDateTime.getDayOfMonth)
+		def apply(readableDateTime:ReadableDateTime):YearMonthDayTuple = YearMonthDayTuple(readableDateTime.getDayOfMonth,readableDateTime.getMonthOfYear,readableDateTime.getYear)
 
 	}
 
@@ -200,9 +200,9 @@ object DayCountCalculators {
 
 
 		override protected def readableDateTimeToTuples(start: ReadableDateTime, end: ReadableDateTime): (YearMonthDayTuple, YearMonthDayTuple) = {
-			val endTuple = readableDateTimeToTuple(end)
+			val endTuple = readableDateTimeToTuple(end).withAtMost30Days
 			val startTuple = readableDateTimeToTuple(start)
-			(startTuple.copy(months = startTuple.months-1, days = -Math.max(0,30-startTuple.days)),endTuple)
+			(startTuple.copy(months = startTuple.months+1, days = -Math.max(0,30-startTuple.days)),endTuple)
 		}
 
 	}

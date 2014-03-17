@@ -2,13 +2,9 @@ package com.gottexbrokers.datemath.test
 
 import org.scalacheck.{Arbitrary, Gen}
 import org.joda.time._
-import com.gottexbrokers.datemath.PaymentPeriod
-import scalaz.Show
-import com.gottexbrokers.datemath.math.Period
 
 
-
-trait DateMathTestGenerators extends CalendarsGenerators with ScheduledFinancialPeriodGenerators{
+trait DateMathTestGenerators extends CalendarsGenerators{
 
   self: DateMathTestInstances =>
 
@@ -118,24 +114,7 @@ trait JodaTimeGenerators extends LongToJodaTimeConversions with BoundedLongGener
 
 }
 
-trait ScheduledFinancialPeriodGenerators {
 
-
-	def arbitraryFinancialPeriodWithNoReference[T]
-	(implicit intervalArbitrary:Arbitrary[Period[T]], show:Show[Period[T]]):Arbitrary[PaymentPeriod[T]] = Arbitrary {
-		intervalArbitrary.arbitrary.map {
-			interval =>
-				new PaymentPeriod[T] {
-				override def actual: Period[T] = interval
-				override def reference:Option[Period[T]] = None
-
-				override def toString = s"Actual: ${show shows actual} reference: ${reference map show.shows}"
-			}
-		}
-	}
-
-
-}
 
 
 

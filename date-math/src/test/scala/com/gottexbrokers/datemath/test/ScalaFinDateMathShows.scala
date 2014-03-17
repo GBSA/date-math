@@ -1,9 +1,8 @@
 package com.gottexbrokers.datemath.test
 
 import scalaz.Show
-import com.gottexbrokers.datemath.PaymentPeriod
 import org.joda.time.base.BaseDateTime
-import com.gottexbrokers.datemath.math.Period
+import com.gottexbrokers.datemath.Period
 
 /**
  * Created with IntelliJ IDEA.
@@ -36,14 +35,5 @@ trait IntervalShows {
 object IntervalShows extends IntervalShows
 
 
-trait PaymentPeriodShows {
 
-	implicit def paymentPeriodShow[A](implicit intervalShow: Show[Period[A]]): Show[PaymentPeriod[A]] = new Show[PaymentPeriod[A]] {
-		override def shows(f: PaymentPeriod[A]) = s"Actual ${intervalShow shows f.actual} reference ${f.reference map intervalShow.shows}"
-
-	}
-
-}
-
-object PaymentPeriodShows extends PaymentPeriodShows
 

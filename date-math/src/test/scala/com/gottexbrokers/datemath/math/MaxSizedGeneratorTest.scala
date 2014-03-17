@@ -7,6 +7,7 @@ import com.gottexbrokers.datemath.test.{FromAmericanDiscoveryToJupiter, JodaTime
 import com.gottexbrokers.datemath.utils.OrderingImplicits
 import org.scalacheck.util.Pretty
 import org.specs2.matcher.Parameters
+import com.gottexbrokers.datemath.Period
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,7 +17,7 @@ import org.specs2.matcher.Parameters
  *
  */
 class MaxSizedGeneratorTest extends Specification
-                                    with IntervalGenerators
+                                    with PeriodGenerators
                                     with ScalaCheck
                                     with JodaTimeGenerators
                                     with FromAmericanDiscoveryToJupiter
@@ -28,7 +29,6 @@ class MaxSizedGeneratorTest extends Specification
 
 	override val defaultPrettyParams = Pretty.Params(2)
 
-	implicit val intervalBuilder = DefaultIntervalBuilder
 
 		def is = s2"""
 									The Max Sized Interval Arbitrary works correctly $e1

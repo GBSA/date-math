@@ -6,12 +6,12 @@ import com.gottexbrokers.datemath.DayCountCalculators._
 import org.specs2.{ScalaCheck, Specification}
 import com.gottexbrokers.datemath.test._
 import org.specs2.specification.{Example, Fragments}
-import org.scalacheck.{Gen, Arbitrary, Prop}
+import org.scalacheck.{Arbitrary, Gen, Prop}
 import org.joda.time._
 import org.scalacheck.util.Pretty
 import com.gottexbrokers.datemath.utils.OrderingImplicits
 import org.specs2.matcher.Parameters
-import com.gottexbrokers.datemath.math.{IntervalGenerators, DefaultIntervalBuilder}
+import com.gottexbrokers.datemath.math.{PeriodGenerators}
 
 /**
  * Created with IntelliJ IDEA.
@@ -23,48 +23,53 @@ import com.gottexbrokers.datemath.math.{IntervalGenerators, DefaultIntervalBuild
 class DayCountCalculatorsCoherenceTest extends Specification
                                                    with ScalaCheck
                                                    with FragmentBuildingTools
-                                                   with ScheduledFinancialPeriodGenerators
                                                    with DateMathTestInstances
                                                    with DayCountConventionTupleMatchers
                                                    with JodaTimeGenerators
-                                                   with IntervalGenerators
+                                                   with PeriodGenerators
                                                    with OrderingImplicits
 																									 with FromAmericanDiscoveryToJupiter{
 
 
-	implicit val params =  Parameters(workers=4,minTestsOk = 1000,maxSize = 5000)
+	implicit val params =  Parameters(workers=4,minTestsOk = 5000,maxSize = 5000)
 
 	override val defaultPrettyParams = Pretty.Params(2)
 
-	def periodIsNotTooLongForJoda(paymentPeriod:PaymentPeriod[DateTime]):Boolean  ={
-		def intervalIsNotTooLongForJoda(interval:math.Period[DateTime]):Boolean = {
-			Math.abs( (interval.end.getMillis - interval.start.getMillis)/DateTimeConstants.MILLIS_PER_DAY)  < Int.MaxValue
-		}
-		intervalIsNotTooLongForJoda(paymentPeriod.actual) &&  (paymentPeriod.reference map intervalIsNotTooLongForJoda).getOrElse(true)
+	def periodIsNotTooLongForJoda(paymentPeriod:Period[DateTime]):Boolean  ={
+			Math.abs( (paymentPeriod.end.getMillis - paymentPeriod.start.getMillis)/DateTimeConstants.MILLIS_PER_DAY)  < Int.MaxValue
 	}
-
-	// Shows for easier debugging
-
+//
+//	// Shows for easier debugging
+//
 	import com.gottexbrokers.datemath.utils._
 	import MillisShows._
 	import IntervalShows._
-	import PaymentPeriodShows._
-
-	def daysIn(paymentPeriod:PaymentPeriod[DateTime]):Int = {
-		def days(interval:math.Period[DateTime]):Int = Days.daysBetween(interval.start,interval.end).getDays
-		Math.max(days(paymentPeriod.actual) , (paymentPeriod.reference map days).getOrElse(0))
-	}
-
-
-
-	def testTuple(tuple: (DayCountCalculator, JFinDaycountCalculator))(implicit arbitrary:Arbitrary[PaymentPeriod[DateTime]]):Example = {
+//	import PaymentPeriodShows._
+//
+//	def daysIn(paymentPeriod:PaymentPeriod[DateTime]):Int = {
+//		def days(interval:math.Period[DateTime]):Int = Days.daysBetween(interval.start,interval.end).getDays
+//		Math.max(days(paymentPeriod.actual) , (paymentPeriod.reference map days).getOrElse(0))
+//	}
+//
+//
+//
+	def testTuple(tuple: (DayCountCalculator, JFinDaycountCalculator))(implicit arbitrary:Arbitrary[Period[DateTime]]):Example = {
 		val (dateMathCalculator, jfinConvention) = tuple
 		val exampleName = s"jfin.$jfinConvention and date-math.$dateMathCalculator must compute the same value "
 		exampleName ! Prop.forAll {
-			(period: PaymentPeriod[DateTime]) => periodIsNotTooLongForJoda(period) ==>{
+			(period: Period[DateTime]) => periodIsNotTooLongForJoda(period) ==>{
 				tuple must computeIdenticalDayCountFor(period)
 			}
 		}
+	}
+
+	def testSimple:Example = {
+		val (dateMathCalculator, jfinConvention) = tuple5
+		val exampleName = s"jfin.$jfinConvention and date-math.$dateMathCalculator must compute the same value "
+		val date1 = DateTime parse "2173-06-09T00:00:00.000+02:00"
+		val date2 = DateTime parse "2242-02-28T00:00:00.000+01:00"
+		val period:Period[DateTime] = TimePeriod(date1,date2)
+		exampleName ! (tuple5 must computeIdenticalDayCountFor(period))
 	}
 
 	val tuple1 =  Actual360DayCountCalculator -> new Actual360DaycountCalculator()
@@ -77,7 +82,7 @@ class DayCountCalculatorsCoherenceTest extends Specification
 
 	val tuple5 = IT30360DayCountCalculator -> new IT30360DaycountCalculator()
 
-	val tuple6 = US30360DayCountCalculator -> new US30360DaycountCalculator()
+	val tuple6 = new US30360DayCountCalculator(true) -> new US30360DaycountCalculator()
 
 	val nonSplittingDayCountCalculator = Seq(tuple1, tuple2, tuple3, tuple4, tuple5, tuple6)
 
@@ -85,11 +90,9 @@ class DayCountCalculatorsCoherenceTest extends Specification
 
 	val splittingDayCountCalculator = Seq(tuple7)
 
-	implicit val intervalBuilder = DefaultIntervalBuilder
 
 	def testNotSplitting:Fragments = {
-		import IndepedendentExtremesIntervalGenerator._
-		val periodGen =  arbitraryFinancialPeriodWithNoReference[DateTime]
+		val periodGen =  IndepedendentExtremesIntervalGenerator.intervalArbitrary[DateTime]
 		 val arbitrary = Arbitrary{
 			periodGen.arbitrary filter periodIsNotTooLongForJoda
 		}
@@ -102,8 +105,7 @@ class DayCountCalculatorsCoherenceTest extends Specification
 		val maxMillisTenYears = Years.years(10) get DurationFieldType.millis()
 		implicit val millisGen = Gen.choose(0L,maxMillisTenYears)
 		implicit val adder = (d1:DateTime, millis:Long) => d1 plus millis
-		import MaxSizedGenerator._
-		val periodGen =  arbitraryFinancialPeriodWithNoReference[DateTime]
+		val periodGen =  MaxSizedGenerator.maxSizedIntervalArbitrary[DateTime,Long]
 		val arbitrary = Arbitrary{
 			periodGen.arbitrary filter periodIsNotTooLongForJoda
 		}

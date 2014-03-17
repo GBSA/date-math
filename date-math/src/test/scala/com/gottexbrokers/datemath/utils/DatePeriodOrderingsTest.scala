@@ -10,7 +10,8 @@ import org.scalacheck.Prop
 import org.specs2.matcher.Parameters
 import org.scalacheck.util.Pretty
 import com.gottexbrokers.datemath.test.{LongGeneratorWithNoOverflow, JodaTimeGenerators}
-import com.gottexbrokers.datemath.math.DefaultIntervalBuilder
+
+import com.gottexbrokers.datemath.{Period, TimePeriod}
 
 
 /**
@@ -28,6 +29,7 @@ class DatePeriodOrderingsTest extends Specification with ScalaCheck with JodaTim
 
   override val defaultPrettyParams = Pretty.Params(2)
 
+	
 
 
 	override  def is = s2"""
@@ -45,6 +47,9 @@ class DatePeriodOrderingsTest extends Specification with ScalaCheck with JodaTim
 
 	"""
 
+	// For variance reason
+	def buildPeriod(start:DateTime,end:DateTime):Period[DateTime] = new TimePeriod[DateTime](start,end) 
+	
 	def e1 = {
 		import StartPointOrdering._
 		val start1 = new DateTime(2010,1,3,0,0)
@@ -53,9 +58,9 @@ class DatePeriodOrderingsTest extends Specification with ScalaCheck with JodaTim
 		val end2 = new DateTime(2010,1,5,0,0)
 		val start3 = new DateTime(2010,1,5,0,0)
 		val end3 = new DateTime(2010,1,5,0,0)
-		val interval = DefaultIntervalBuilder(start1,end1).toOption.get
-		val interval2 = DefaultIntervalBuilder(start2,end2).toOption.get
-		val interval3 = DefaultIntervalBuilder(start3,end3).toOption.get
+		val interval = buildPeriod(start1,end1)
+		val interval2 = buildPeriod(start2,end2)
+		val interval3 = buildPeriod(start3,end3)
 		interval must <(interval2)
 		interval must <(interval3)
 		interval3 must >(interval2)
@@ -66,8 +71,8 @@ class DatePeriodOrderingsTest extends Specification with ScalaCheck with JodaTim
 		Prop.forAll{(date1:DateTime, date2:DateTime) => ((date1 compareTo date2) > 0) ==> {
 			val end1 = date1 plusDays 4
 			val end2  = date2 plusDays 4
-			val interval = DefaultIntervalBuilder(date1,end1).toOption.get
-			val interval2 = DefaultIntervalBuilder(date2,end2).toOption.get
+			val interval = buildPeriod(date1,end1)
+			val interval2 = buildPeriod(date2,end2)
 			interval must >(interval2)
 		} }
 	}
@@ -81,9 +86,9 @@ class DatePeriodOrderingsTest extends Specification with ScalaCheck with JodaTim
       val end2 = new DateTime(2010,3,4,0,0)
       val start3 = new DateTime(2010,1,5,0,0)
       val end3 = new DateTime(2010,1,5,0,0)
-      val interval = DefaultIntervalBuilder(start1,end1).toOption.get
-      val interval2 = DefaultIntervalBuilder(start2,end2).toOption.get
-      val interval3 = DefaultIntervalBuilder(start3,end3).toOption.get
+      val interval = buildPeriod(start1,end1)
+      val interval2 = buildPeriod(start2,end2)
+      val interval3 = buildPeriod(start3,end3)
       interval must <(interval2)
       interval must <(interval3)
       interval3 must >(interval2)
@@ -97,9 +102,9 @@ class DatePeriodOrderingsTest extends Specification with ScalaCheck with JodaTim
 		val end2 = new DateTime(2010,1,5,0,0)
 		val start3 = new DateTime(2010,1,5,0,0)
 		val end3 = new DateTime(2010,1,5,0,0)
-		val interval = DefaultIntervalBuilder(start1,end1).toOption.get
-		val interval2 = DefaultIntervalBuilder(start2,end2).toOption.get
-		val interval3 = DefaultIntervalBuilder(start3,end3).toOption.get
+		val interval = buildPeriod(start1,end1)
+		val interval2 = buildPeriod(start2,end2)
+		val interval3 = buildPeriod(start3,end3)
 		interval must >(interval2)
 		interval must >(interval3)
 		(interval3 must beGreaterThanOrEqualTo(interval2)) and (interval2 must beGreaterThanOrEqualTo(interval3))
@@ -110,8 +115,8 @@ class DatePeriodOrderingsTest extends Specification with ScalaCheck with JodaTim
 		Prop.forAll{(end1:DateTime, end2:DateTime) => ((end1 compareTo end2) > 0) ==> {
 			val start1 = end1 minusDays  4
 			val start2 = end2 minusDays 4
-			val interval = DefaultIntervalBuilder(start1,end1).toOption.get
-			val interval2 = DefaultIntervalBuilder(start2,end2).toOption.get
+			val interval = buildPeriod(start1,end1)
+			val interval2 = buildPeriod(start2,end2)
 			interval must >(interval2)
 		}}
 	}

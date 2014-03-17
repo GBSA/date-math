@@ -1,15 +1,16 @@
 package com.gottexbrokers.datemath.test
 
 import org.specs2.text.Sentences
-import org.joda.time._
 import org.specs2.matcher._
 import java.util.Date
 import com.gottexbrokers.datemath._
 import JFinTypeAliases._
 import com.mbc.jfin.schedule.SchedulePeriod
-import com.gottexbrokers.datemath.utils.{OrderingImplicits, Generifiers}
-import com.gottexbrokers.datemath.scheduler.Schedule
+import com.gottexbrokers.datemath.utils.OrderingImplicits
 import com.mbc.jfin.holiday.DateAdjustmentService
+import org.joda.time._
+import com.gottexbrokers.datemath.Period
+import com.gottexbrokers.datemath.scheduler.Schedule
 
 
 /**
@@ -99,27 +100,25 @@ trait BusinessDayConventionTupleMatchers extends JodaTimeDateMatchers with MustM
 
 }
 
-trait DayCountConventionTupleMatchers extends JodaTimeDateMatchers with MustMatchers with Generifiers with OrderingImplicits{
+trait DayCountConventionTupleMatchers extends JodaTimeDateMatchers with MustMatchers with OrderingImplicits{
 
 
 
-	implicit def periodAs[T<:ReadableInstant](period:PaymentPeriod[T]):SchedulePeriod = {
+	implicit def periodAs[T<:ReadableInstant](period:Period[T]):SchedulePeriod = {
 		implicit def toLocalDate(t:T):LocalDate = new LocalDate(t.getMillis,t.getChronology)
-		val start:LocalDate = period.actual.start
-		val end:LocalDate = period.actual.end
-		val referenceStart = period.reference map {referencePeriod => toLocalDate(referencePeriod.start)}
-		val referenceEnd  = period.reference map { referencePeriod => toLocalDate(referencePeriod.end)}
-		new SchedulePeriod(start,end,referenceStart.getOrElse(null),referenceEnd.getOrElse(null))
+		val start:LocalDate = period.start
+		val end:LocalDate = period.end
+		new SchedulePeriod(start,end,null,null)
 	}
 
-	def computeIdenticalDayCountFor[T<:ReadableDateTime](period:PaymentPeriod[T]):Matcher[(DayCountCalculator,JFinDaycountCalculator)] =
+	def computeIdenticalDayCountFor[T<:ReadableDateTime](period:Period[T]):Matcher[(DayCountCalculator,JFinDaycountCalculator)] =
 		new Matcher[(DayCountCalculator,JFinDaycountCalculator)]{
 
 			override def apply[S <: (DayCountCalculator, JFinDaycountCalculator)](t: Expectable[S]): MatchResult[S] = {
 				val (dateMathCalculator, jfinCalculator) = t.value
-				val dateMathResult = dateMathCalculator calculateDayCountFraction period
+				val dateMathResult = dateMathCalculator apply period
 				val jfinCalculatorResult =  jfinCalculator calculateDaycountFraction period
-				val matchResult = jfinCalculatorResult must_== dateMathResult
+				val matchResult = jfinCalculatorResult must beCloseTo(dateMathResult,1e-15)
 				val message = s"jfin.$jfinCalculator and -datemath.$dateMathCalculator adjust date $period to $dateMathCalculator and $jfinCalculatorResult: ${matchResult.message}"
 				result(matchResult.isSuccess, message, negateSentence(message), t)
 
@@ -132,9 +131,9 @@ trait PeriodMatchers extends MustMatchers with JodaTimeDateMatchers{
 
 	def beTheSameInstantAs(instant:ReadableInstant):Matcher[ReadableDateTime]
 
-	def be(start:ReadableInstant, end:ReadableInstant):Matcher[math.Period[ReadableDateTime]] = new Matcher[math.Period[ReadableDateTime]]{
+	def be(start:ReadableInstant, end:ReadableInstant):Matcher[Period[ReadableDateTime]] = new Matcher[Period[ReadableDateTime]]{
 
-		override def apply[S <: math.Period[ReadableDateTime]](t: Expectable[S]): MatchResult[S] = {
+		override def apply[S <: Period[ReadableDateTime]](t: Expectable[S]): MatchResult[S] = {
 			val interval = t.value
 			val startIsCorrect = interval.start aka "The start of interval " must beTheSameInstantAs(start)
 			val endIsCorrect = interval.end aka "The end of interval " must beTheSameInstantAs(end)
@@ -166,9 +165,9 @@ trait ComparableMatchers extends Sentences{
 
 trait ScheduleMatchers extends MatchersImplicits with MustMatchers with JodaTimeDateMatchers{
 
-	def beAnIntervalEquivalentTo(start:ReadablePartial, end:ReadablePartial):Matcher[math.Period[ReadableDateTime]] = new Matcher[math.Period[ReadableDateTime]]{
+	def beAnIntervalEquivalentTo(start:ReadablePartial, end:ReadablePartial):Matcher[Period[ReadableDateTime]] = new Matcher[Period[ReadableDateTime]]{
 
-		override def apply[S <: math.Period[ReadableDateTime]](t: Expectable[S]): MatchResult[S] = {
+		override def apply[S <: Period[ReadableDateTime]](t: Expectable[S]): MatchResult[S] = {
 			val interval = t.value
 			val startIsCorrect = start aka "The start of interval" must beEquivalentTo(interval.start)
 			val endIsCorrect = end aka "The end of interval " must beEquivalentTo(interval.end)
@@ -192,25 +191,11 @@ trait ScheduleMatchers extends MatchersImplicits with MustMatchers with JodaTime
 		}
 	}
 
-	def beAPeriodEquivalentTo(paymentPeriod:JFinSchedulePeriod):Matcher[PaymentPeriod[ReadableDateTime]] = new Matcher[PaymentPeriod[ReadableDateTime]]{
-		override def apply[S <: PaymentPeriod[ReadableDateTime]](t: Expectable[S]): MatchResult[S] = {
+	def beAPeriodEquivalentTo(paymentPeriod:JFinSchedulePeriod):Matcher[Period[ReadableDateTime]] = new Matcher[Period[ReadableDateTime]]{
+		override def apply[S <: Period[ReadableDateTime]](t: Expectable[S]): MatchResult[S] = {
 			val value = t.value
-			val actualMatch = value.actual aka "The actual interval" must beAnIntervalEquivalentTo(paymentPeriod.getStart,paymentPeriod.getEnd)
-			//TODO use applicative syntax
-//			import scalaz.Scalaz._
-//			val referenceOption = ( Option(paymentPeriod.getReferenceStart) |@|  Option(paymentPeriod.getReferenceEnd)) {(x,y) => (x,y) }
-			val referenceOption = if(paymentPeriod.getReferenceStart!=null || paymentPeriod.getReferenceEnd!=null)
-																Some((paymentPeriod.getReferenceStart,paymentPeriod.getReferenceEnd))
-														else
-																None
-			val referenceMatch = referenceOption match {
-					case Some((x,y)) => value.reference aka "The reference interval" must beLike{
-						case Some(r) => r must beAnIntervalEquivalentTo(x,y)
-						case None => value.actual must beAnIntervalEquivalentTo(x,y)
-					}
-					case None => value.reference aka "The reference interval" must beNone
-			}
-			result(referenceMatch and actualMatch, t)
+			val actualMatch = value aka "The interval" must beAnIntervalEquivalentTo(paymentPeriod.getStart,paymentPeriod.getEnd)
+			result(actualMatch, t)
 
 		}
 	}
