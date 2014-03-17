@@ -23,7 +23,7 @@ Philisophy
 -----------
 The `date-math` didn't want to implement all the features in `jFin`, but just the subset we were using. It has a very simple, yet powerful design.
 
-1.  It provides a single entry point, `com.gottexbrokers.datemath` package object, which contains all the key abstractions used in the code
+1.  It provides a single entry point, `DateMath.scala` inside `com.gottexbrokers.datemath`. This was originally contained in `com.gottexbrokers.datemath` package object, but has to be moved out to guarantee **Java Interoperability**
 2.  It relies on the largely used, de-facto standard library for date manipulation in Java: `JodaTime` 
 3.  It is a functional library: the functions are pure, independent and composable. There is no mutable state. 
 4.  It is coded against `JodaTime` interfaces, so that it does not impose restrictions on which concrete class you will be using
