@@ -110,7 +110,7 @@ class SchedulingImpossibleException(message:String, cause:Option[Throwable] = No
 trait Scheduler {
 
 
-	def schedule(frequency:Frequency, start: ReadableDateTime, end: ReadableDateTime):Validation[SchedulingImpossibleException, Schedule[ReadableDateTime]]
+	def schedule(frequency:Frequency, start: ReadableDateTime, end: ReadableDateTime):Validation[SchedulingImpossibleException, Schedule]
 
 }
 

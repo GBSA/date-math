@@ -22,14 +22,14 @@ import scala.collection.immutable.Stream.cons
 trait SchedulerSkeleton extends Scheduler with OrderingImplicits{
 
 
-	override def schedule(frequency: Frequency, start: ReadableDateTime, end: ReadableDateTime): ScheduleResult[ReadableDateTime]  = {
+	override def schedule(frequency: Frequency, start: ReadableDateTime, end: ReadableDateTime): ScheduleResult  = {
 		if( (end compareTo start)<0)
 			Failure(new SchedulingImpossibleException(s"Impossible to perform the schedule since $end occurs after the $start"))
 		else
 			scheduleInternal(frequency,start,end)
 	}
 
-	protected def scheduleInternal(frequency: Frequency, start: ReadableDateTime, end: ReadableDateTime):ScheduleResult[ReadableDateTime]
+	protected def scheduleInternal(frequency: Frequency, start: ReadableDateTime, end: ReadableDateTime):ScheduleResult
 }
 
 sealed trait StubDetector {
@@ -76,7 +76,7 @@ trait BackwardScheduler extends StubbingScheduler{
 
 	self: StubDetector =>
 
-	override protected def scheduleInternal(frequency: Frequency, start: ReadableDateTime, end: ReadableDateTime): ScheduleResult[ReadableDateTime] = {
+	override protected def scheduleInternal(frequency: Frequency, start: ReadableDateTime, end: ReadableDateTime): ScheduleResult = {
 		@tailrec
 		def toStream(current:ReadableDateTime, index:Int, previousPeriods:Stream[TimePeriod[ReadableDateTime]]):Stream[TimePeriod[ReadableDateTime]] = {
 			// This is necessary because adding 2 months to 30 jan is different to add a month to 30 jan and then add a second month
@@ -106,7 +106,7 @@ trait ForwardScheduler extends StubbingScheduler{
 
 	self: StubDetector =>
 
-	override protected def scheduleInternal(frequency: Frequency, start: ReadableDateTime, end: ReadableDateTime): ScheduleResult[ReadableDateTime] = {
+	override protected def scheduleInternal(frequency: Frequency, start: ReadableDateTime, end: ReadableDateTime): ScheduleResult = {
 
 		def toStream(current:ReadableDateTime, currentIndex:Int):Stream[TimePeriod[ReadableDateTime]] = {
 			// We need double look ahead
@@ -208,7 +208,7 @@ trait NoStubScheduler extends SchedulerSkeleton {
 
 	  */
 
-	override def scheduleInternal(frequency: Frequency, start: ReadableDateTime, end: ReadableDateTime): ScheduleResult[ReadableDateTime] = {
+	override def scheduleInternal(frequency: Frequency, start: ReadableDateTime, end: ReadableDateTime): ScheduleResult = {
 
 		def toList(current:ReadableDateTime,currentIndex:Int, previousItems:List[TimePeriod[ReadableDateTime]]):Validation[SchedulingImpossibleException,List[TimePeriod[ReadableDateTime]]] = {
 			// We need double look ahead

@@ -16,7 +16,7 @@ package object datemath {
 
   type DateInterval = Period[ReadableDateTime]
 
-	type ScheduleResult[T] = Validation[SchedulingImpossibleException, Schedule[ReadableDateTime]]
+	type ScheduleResult = Validation[SchedulingImpossibleException, Schedule]
 
 
 }

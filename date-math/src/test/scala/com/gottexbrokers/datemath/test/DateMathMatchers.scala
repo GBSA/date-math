@@ -178,9 +178,9 @@ trait ScheduleMatchers extends MatchersImplicits with MustMatchers with JodaTime
 	}
 
 
-	def beAScheduleEquivalentTo(jfinSchedule:JFinSchedule):Matcher[Schedule[ReadableDateTime]] = new Matcher[Schedule[ReadableDateTime]]{
+	def beAScheduleEquivalentTo(jfinSchedule:JFinSchedule):Matcher[Schedule] = new Matcher[Schedule]{
 
-		override def apply[S <: Schedule[ReadableDateTime]](t: Expectable[S]): MatchResult[S] = {
+		override def apply[S <: Schedule](t: Expectable[S]): MatchResult[S] = {
 			val value = t.value
 			import scala.collection.JavaConversions._
 			val zippedPeriods = jfinSchedule.zipWithIndex.zip(value.periods)
