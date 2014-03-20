@@ -58,6 +58,13 @@ trait Frequency {
 
 }
 
+object Frequency {
+
+	def apply(period1:ReadablePeriod) = new Frequency {
+		override def period: ReadablePeriod = period1
+	}
+}
+
 trait ExactFitInYear {
 
 	def periodsPerYear: Int
