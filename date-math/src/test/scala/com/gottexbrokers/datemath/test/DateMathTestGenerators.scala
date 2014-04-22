@@ -17,7 +17,7 @@ trait CalendarsGenerators extends JodaTimeGenerators {
 		Arbitrary.arbitrary(Arbitrary.arbContainer[List,LocalDate]).map {
 			dateList =>
 				new SimpleMbcHolidayCalendar {
-					override def listOfHolidays = dateList
+					override def listOfHolidays = dateList.distinct.take(200)
 				}
 
 		}

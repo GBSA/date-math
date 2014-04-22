@@ -28,7 +28,7 @@ class DateAdjustmentToolsTest extends Specification with DateAdjustmentTools
 																										with ComparableMatchers{
 
 
-	implicit val params =  Parameters(workers=4,minTestsOk = 2000,maxSize = 5000)
+	implicit val params =  Parameters(workers=4,minTestsOk = 1000,maxSize = 10000)
 
 
 	val schedulers = Seq[StubType](StubTypes.LONG_FIRST,StubTypes.LONG_LAST,StubTypes.SHORT_FIRST,StubTypes.SHORT_LAST, StubTypes.NONE) map Schedulers.apply
@@ -57,23 +57,25 @@ class DateAdjustmentToolsTest extends Specification with DateAdjustmentTools
 		}
 	}
 
-
 	def e1: Example  = "The scheduler adjustment should always return coherent schedule" !  Prop.forAll(
 		(calendar:SimpleMbcHolidayCalendar,businessDayConvention:BusinessDayConvention,start: DateTime,scheduler:Scheduler, scheduleFrequency: Frequency, maxPeriods: Int) => {
-			Prop.collect(businessDayConvention,scheduler){
-				val end = start plus scheduleFrequency.divide(maxPeriods).period
-				implicit val holidayCalendar = calendar.toDateMathCalendar
-				val schedule = scheduler.schedule(scheduleFrequency, start,end)
-				schedule must beLike {
-					case Success(x) =>
-						val adjusted = adjust(x,businessDayConvention)
-						(adjusted must respectScheduleInvariant) and (adjusted must beEqualToAdjusted(x,businessDayConvention))
+			Prop.collect(businessDayConvention, scheduler) {
+				test(calendar,businessDayConvention,start,scheduler,scheduleFrequency,maxPeriods)
 				}
-
 			}
-
-		}
 	)
+
+
+	def test(calendar:SimpleMbcHolidayCalendar,businessDayConvention:BusinessDayConvention,start: DateTime,scheduler:Scheduler, scheduleFrequency: Frequency, maxPeriods: Int) = {
+		val end = start plus scheduleFrequency.divide(maxPeriods).period
+		implicit val holidayCalendar = calendar.toDateMathCalendar
+		val schedule = scheduler.schedule(scheduleFrequency, start, end)
+		schedule must beLike {
+			case Success(x) =>
+				val adjusted = adjust(x, businessDayConvention)
+				(adjusted must respectScheduleInvariant) and (adjusted must beEqualToAdjusted(x, businessDayConvention))
+		}
+	}
 
 	def beTheSameInstantAs(instant: ReadableInstant): Matcher[ReadableDateTime] = beEqualAccordingToCompare[ReadableInstant,ReadableDateTime](instant)
 
@@ -99,7 +101,8 @@ class DateAdjustmentToolsTest extends Specification with DateAdjustmentTools
 			val noDatesExistAfterEnd = value.periods must endBefore(value.end).forall
 			val startsAtFirstPeriodStart =  value.periods.head aka "The first period" must beLike{ case x => x.start must beTheSameInstantAs(value.start)}
 			val endsAtLastPeridEnd =  value.periods.last aka "The last period" must beLike{ case x => x.end must beTheSameInstantAs(value.end)}
-			result(noDatesExistBeforeStart and noDatesExistAfterEnd and startsAtFirstPeriodStart and endsAtLastPeridEnd,t)
+			val res = noDatesExistBeforeStart and noDatesExistAfterEnd and startsAtFirstPeriodStart and endsAtLastPeridEnd
+			result(res,t)
 		}
 	}
 
