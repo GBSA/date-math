@@ -36,16 +36,21 @@ class SimpleSchedulerTests extends Specification
 						    The XXXX "first" stub scheduler
 						        Correctly generates the correct periods when the STUB is  Short $e1
 										Correctly generates the correct periods when the STUB is  Long $e2
+										Correctly generates a non empty schedule in a known extreme case $e7
 
 								The XXXX "last" stub scheduler
 						        Correctly generates the correct periods when the STUB is  Short $e3
-										Correctly generates the correct periods when the STUB is  Long $e4
+						  			Correctly generates the correct periods when the STUB is  Long $e4
+
 
 							  The No Stub scheduler
 							      Fails if the date are not separated by a multiple of the frequency $e5
 										Succees if the date are not separated by a multiple of the frequency $e6
 
 						"""
+
+
+
 
 
 	override def beTheSameInstantAs(instant: ReadableInstant): Matcher[ReadableDateTime] = beEqualAccordingToCompare[ReadableInstant,ReadableDateTime](instant)
@@ -156,11 +161,20 @@ class SimpleSchedulerTests extends Specification
 		implicit val frequencyArbitrary = Arbitrary { Gen.oneOf(Frequencies.values)map{ x => x:Frequency}}
 
 		"The non stubbed scheduler should succeed when no stub is required" !  Prop.forAll{
-			(frequency:Frequency, startDate:DateTime, periodMultipler:Int) => testScheduleSuccess(frequency,scheduler,startDate,periodMultipler)
+			(frequency:Frequency, startDate:DateTime, periodMultiplier:Int) => {
+				val end = frequency.divide(periodMultiplier).addTo(startDate)
+				val maybeSchedule = scheduler schedule(frequency, startDate,end)
+				maybeSchedule must beLike {
+					case Success(_) => ok
+				}
+			}
 		}
 
-
 	}
+
+
+
+
 
 	def testScheduleSuccess(frequency:Frequency, scheduler:Scheduler, startDate:DateTime, periodMultiplier:Int):MatchResult[Any] = {
 		@tailrec
@@ -181,6 +195,22 @@ class SimpleSchedulerTests extends Specification
 
 
 
+	def e7: Example = {
+		val start = DateTime.parse("1967-01-29T00:00:00.000+01:00")
+		val holidays = List("1971-06-20", "1970-05-27", "1972-03-29", "1970-01-01", "1967-01-29", "1967-01-29", "1970-01-01", "1972-11-27", "1967-07-12", "1972-10-19").map { LocalDate.parse}
+		val businessDayConvention = BusinessDayConventions.MODIFIED_PRECEDING
+		val frequency = Frequencies.MONTHLY
+		val maxPeriod = 1
+		val end = frequency.divide(maxPeriod).addTo(start)
+		val scheduler = new LongStubFirstScheduler {}
+		val schedule = scheduler.schedule(frequency,start,end)
+		val result = schedule must beLike{
+			case Success(x) =>
+				val singlePeriod = x.periods.head
+				singlePeriod must be(start,end)
+		}
+		"The long stub scheduler can correctly handle a single coupon"  ! result
+	}
 
 
 }

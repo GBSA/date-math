@@ -149,8 +149,10 @@ trait LongStubFirstScheduler extends BackwardScheduler
 	def createStub(start:ReadableDateTime, nextPeriodTheoricExtreme:ReadableDateTime, current:ReadableDateTime,
 		previousPeriods:Stream[TimePeriod[ReadableDateTime]]):Stream[TimePeriod[ReadableDateTime]] = {
 
-		if(previousPeriods.isEmpty)
-			previousPeriods
+		if(previousPeriods.isEmpty){
+			val period = TimePeriod(start,current)
+			Stream cons (period, Stream.empty)
+		}
 		else{
 			val previousHead = previousPeriods.head
 			val period = TimePeriod (start, previousHead.end)
