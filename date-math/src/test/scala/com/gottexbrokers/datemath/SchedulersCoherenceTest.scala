@@ -1,20 +1,13 @@
 package com.gottexbrokers.datemath
 
 import org.specs2.{ScalaCheck, Specification}
-import org.specs2.specification.Example
 import com.gottexbrokers.datemath.scheduler._
 import com.mbc.jfin.schedule.impl._
 import org.scalacheck.{Gen, Arbitrary, Prop}
 import org.joda.time.{LocalDate, DateTime}
 import org.specs2.matcher.MatchResult
-import scalaz.Failure
 import com.gottexbrokers.datemath.test.{LongGeneratorWithNoOverflow, JodaTimeGenerators, ScheduleMatchers}
 import com.gottexbrokers.datemath.Frequencies._
-import scalaz.Failure
-import org.specs2.matcher.Parameters
-import scalaz.Failure
-import org.specs2.matcher.Parameters
-import scalaz.Success
 import org.scalacheck.util.Pretty
 import scalaz.Failure
 import org.specs2.matcher.Parameters

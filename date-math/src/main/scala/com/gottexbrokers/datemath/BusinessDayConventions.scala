@@ -24,6 +24,8 @@ object BusinessDayConventions {
 
 	private implicit def toDateTime(readableDateTime:ReadableDateTime) = readableDateTime.toDateTime
 
+	val values:Seq[BusinessDayConvention] = Seq(UNADJUSTED,PRECEDING,FOLLOWING,MODIFIED_FOLLOWING,MODIFIED_PRECEDING,MONTH_END_REFERENCE)
+
   /**
    * Do not adjust.
    */

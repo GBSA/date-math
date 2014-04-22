@@ -4,7 +4,7 @@ import com.gottexbrokers.datemath.TimePeriod
 import org.joda.time.ReadableDateTime
 
 
-case class Schedule(periods:Stream[TimePeriod[ReadableDateTime]], start:ReadableDateTime, end:ReadableDateTime)
+case class Schedule private[datemath](periods:Stream[TimePeriod[ReadableDateTime]], start:ReadableDateTime, end:ReadableDateTime)
 
 
 

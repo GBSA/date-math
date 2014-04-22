@@ -1,9 +1,8 @@
 package com.gottexbrokers.datemath.utils
 
-import org.joda.time.ReadableDateTime
+import org.joda.time.{Period, ReadableDateTime}
 import com.gottexbrokers.datemath.{BusinessDayConvention, HolidayCalendar}
-
-
+import com.gottexbrokers.datemath.scheduler.Schedule
 
 
 /**
@@ -36,6 +35,16 @@ trait DateAdjustmentTools {
        }
      }
    }
+
+	def adjust(schedule:Schedule, businessDayConvention:BusinessDayConvention)(implicit holidayCalendar:HolidayCalendar):Schedule = {
+		// Since the adjustment is done on all the dates with the same convention, we can assume it to be safe
+		val adjustedStart = businessDayConvention adjust schedule.start
+		val adjustedEnd = businessDayConvention adjust schedule.end
+		val periods = schedule.periods map {
+			period => period copy( start = businessDayConvention adjust period.start, end = businessDayConvention adjust period.end )
+		}
+		new Schedule(periods,adjustedStart,adjustedEnd)
+	}
 
  }
 
