@@ -48,7 +48,7 @@ class DatePeriodOrderingsTest extends Specification with ScalaCheck with JodaTim
 	"""
 
 	// For variance reason
-	def buildPeriod(start:DateTime,end:DateTime):Period[DateTime] = new TimePeriod[DateTime](start,end) 
+	def buildPeriod(start:DateTime,end:DateTime):Period[DateTime] = new TimePeriod[DateTime](start,end,start,end)
 	
 	def e1 = {
 		import StartPointOrdering._

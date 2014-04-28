@@ -67,6 +67,7 @@ sealed trait StubbingScheduler extends SchedulerSkeleton  {
 
 	self: StubDetector =>
 
+
 }
 
 
@@ -76,6 +77,8 @@ trait BackwardScheduler extends StubbingScheduler{
 
 	self: StubDetector =>
 
+
+
 	override protected def scheduleInternal(frequency: Frequency, start: ReadableDateTime, end: ReadableDateTime): ScheduleResult = {
 		@tailrec
 		def toStream(current:ReadableDateTime, index:Int, previousPeriods:Stream[TimePeriod[ReadableDateTime]]):Stream[TimePeriod[ReadableDateTime]] = {
@@ -84,7 +87,7 @@ trait BackwardScheduler extends StubbingScheduler{
 			if(isStubRequiredAt(start,end,nextDate))
 				createStub(start,nextDate,current,previousPeriods)
 			else{
-				val period = TimePeriod(nextDate, current)
+				val period = TimePeriod(nextDate, current,nextDate,current)
 				val newStream = Stream cons (period, previousPeriods)
 				if((nextDate compareTo start)==0)
 					newStream
@@ -100,7 +103,6 @@ trait BackwardScheduler extends StubbingScheduler{
 
 }
 
-//TODO: waiting answer on Scala ML
 
 trait ForwardScheduler extends StubbingScheduler{
 
@@ -115,7 +117,7 @@ trait ForwardScheduler extends StubbingScheduler{
 			if(isStubRequiredAt(start,end,nextNextDate))
 				createStub(end,current,nextDate,nextNextDate)
 			else{
-				val period = TimePeriod(current,nextDate)
+				val period = TimePeriod(current,nextDate,current,nextDate)
 				Stream.cons(period, toStream(nextDate,currentIndex+1) )
 			}
 		}
@@ -135,7 +137,7 @@ trait ShortStubFirstScheduler extends BackwardScheduler
 
 	def createStub(start:ReadableDateTime, nextPeriodTheoricExtreme:ReadableDateTime, current:ReadableDateTime,
 		previousPeriods:Stream[TimePeriod[ReadableDateTime]]):Stream[TimePeriod[ReadableDateTime]] =  {
-		val period = TimePeriod (start, current)
+		val period = TimePeriod (start, current,nextPeriodTheoricExtreme,current)
 		Stream cons (period, previousPeriods)
 
 	}
@@ -150,12 +152,12 @@ trait LongStubFirstScheduler extends BackwardScheduler
 		previousPeriods:Stream[TimePeriod[ReadableDateTime]]):Stream[TimePeriod[ReadableDateTime]] = {
 
 		if(previousPeriods.isEmpty){
-			val period = TimePeriod(start,current)
+			val period = TimePeriod(start,current,start,nextPeriodTheoricExtreme)
 			Stream cons (period, Stream.empty)
 		}
 		else{
 			val previousHead = previousPeriods.head
-			val period = TimePeriod (start, previousHead.end)
+			val period = TimePeriod (start, previousHead.end, start, previousHead.start)
 			Stream cons (period, previousPeriods.tail)
 		}
 
@@ -170,12 +172,12 @@ trait ShortStubLastScheduler extends ForwardScheduler
 	override def createStub(end: ReadableDateTime, current: ReadableDateTime, nextDate: ReadableDateTime, nextNextDate: ReadableDateTime): Stream[TimePeriod[ReadableDateTime]] = {
 		if((nextDate compareTo end)>0){
 			// Extreme degenerate case, 1 period only
-			val stubbedPeriod = TimePeriod(current,end)
+			val stubbedPeriod = TimePeriod(current,end,current,nextDate)
 			Stream cons (stubbedPeriod , Stream.empty)
 		}
 		else {
-			val nonStubbedPeriod = TimePeriod(current,nextDate)
-			val stubbedPeriod = TimePeriod(nextDate,end)
+			val nonStubbedPeriod = TimePeriod(current,nextDate,current,nextDate)
+			val stubbedPeriod = TimePeriod(nextDate,end,nextDate,nextNextDate)
 			Stream cons (nonStubbedPeriod , Stream cons (stubbedPeriod, Stream.empty[TimePeriod[ReadableDateTime]] ))
 		}
 
@@ -189,7 +191,7 @@ trait LongStubLastScheduler extends ForwardScheduler
                                     with StubLastDetector {
 
 	override def createStub(end: ReadableDateTime, current: ReadableDateTime, nextDate: ReadableDateTime, nextNextDate: ReadableDateTime): Stream[TimePeriod[ReadableDateTime]] = {
-		val stubbedPeriod =TimePeriod(current,end)
+		val stubbedPeriod =TimePeriod(current,end,current,nextDate)
 		Stream cons (stubbedPeriod, Stream.empty[TimePeriod[ReadableDateTime]] )
 	}
 
@@ -199,7 +201,7 @@ trait LongStubLastScheduler extends ForwardScheduler
 trait NoStubScheduler extends SchedulerSkeleton {
 
 
-	private def buildPeriod(periodStart:ReadableDateTime,periodEnd:ReadableDateTime):TimePeriod[ReadableDateTime] = TimePeriod(periodStart,periodEnd)
+	private def buildPeriod(periodStart:ReadableDateTime,periodEnd:ReadableDateTime):TimePeriod[ReadableDateTime] = TimePeriod(periodStart,periodEnd,periodStart,periodEnd)
 
 
 

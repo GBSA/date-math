@@ -243,7 +243,7 @@ object DayCountCalculators {
 
 
 		override def calculateDayCountFraction(start: ReadableDateTime, end: ReadableDateTime): Double = {
-			val timePeriod = TimePeriod(start,end)
+			val timePeriod = TimePeriod(start,end,start,end)
 			val splittedPeriods = timePeriod splitInArrear previousDateBuilder
 			(splittedPeriods map {
 				period => tau(period.start,period.end)
@@ -298,7 +298,7 @@ object DayCountCalculators {
 
 
 		override def calculateDayCountFraction(start: ReadableDateTime, end: ReadableDateTime): Double = {
-			val timePeriod = TimePeriod(start,end)
+			val timePeriod = TimePeriod(start,end,start,end)
 			val splittedPeriods = timePeriod splitInArrear  previousDateBuilder
 			(splittedPeriods map tau).sum
 		}

@@ -127,8 +127,14 @@ trait Period[+A]{
 }
 
 
-case class TimePeriod[+A<:ReadableDateTime](start:A, end:A) extends Period[A]{
-
+/**
+ * A generic time period typically resulting out of a schedule operation. Since schedule might result in stubbing,
+ * the reference start and reference end are kept so they could be used at a later stage
+ * @param start
+ * @param end
+ * @tparam A
+ */
+case class TimePeriod[+A<:ReadableDateTime](start:A, end:A, referenceStart:A, referenceEnd:A) extends Period[A]{
 
 	import com.gottexbrokers.datemath.utils.OrderingImplicits._
 
@@ -138,10 +144,10 @@ case class TimePeriod[+A<:ReadableDateTime](start:A, end:A) extends Period[A]{
 		def splitInArrear(currentInterval:TimePeriod[B], currentSplits:Seq[TimePeriod[B]]):Seq[TimePeriod[B]] = {
 			val previousInstant = f(currentInterval.end)
 			if (previousInstant <= start)
-				currentInterval +: currentSplits
+				currentInterval.copy(referenceStart = previousInstant) +: currentSplits
 			else {
-				val lastPartOfCurrentInterval = TimePeriod[B] (previousInstant, end)
-				val firstPartOfCurrentInterval = TimePeriod[B] (start, previousInstant)
+				val lastPartOfCurrentInterval = TimePeriod[B] (previousInstant, end,previousInstant,end)
+				val firstPartOfCurrentInterval = TimePeriod[B] (start, previousInstant,start,previousInstant)
 				splitInArrear(firstPartOfCurrentInterval, lastPartOfCurrentInterval +: currentSplits)
 			}
 		}
@@ -150,4 +156,5 @@ case class TimePeriod[+A<:ReadableDateTime](start:A, end:A) extends Period[A]{
 
 
 }
+
 

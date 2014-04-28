@@ -1,6 +1,6 @@
 package com.gottexbrokers.datemath.scheduler
 
-import com.gottexbrokers.datemath.TimePeriod
+import com.gottexbrokers.datemath.{Frequency, StubType, TimePeriod}
 import org.joda.time.ReadableDateTime
 
 
