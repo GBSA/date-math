@@ -42,10 +42,17 @@ class SimpleSchedulerTests extends Specification
 						        Correctly generates the correct periods when the STUB is  Short $e3
 						  			Correctly generates the correct periods when the STUB is  Long $e4
 
-
 							  The No Stub scheduler
 							      Fails if the date are not separated by a multiple of the frequency $e5
 										Succees if the date are not separated by a multiple of the frequency $e6
+
+		            The short last stub scheduler
+										Correctly generates the correct period when we are at the end of the month $e8
+
+						   The long last stub scheduler
+										Correctly generates the correct period when we are at the end of the month $e9
+
+
 
 						"""
 
@@ -217,6 +224,37 @@ class SimpleSchedulerTests extends Specification
 		}
 		"The long stub scheduler can correctly handle a single coupon"  ! result
 	}
+
+	def e8:Example = {
+		val scheduler = new ShortStubLastScheduler {}
+		val frequency = Frequencies.QUARTERLY
+		val start = new DateTime(2014,DateTimeConstants.MAY,30,0,0)
+		val end = new DateTime(2015,DateTimeConstants.FEBRUARY,28,0,0)
+
+		val result = scheduler.schedule(frequency,start,end) must beLike {
+			case Success(x) => x.periods must haveSize(3)
+		}
+
+		"The short stub last scheduler correctly avoid repeating dates" ! result
+
+	}
+
+	def e9:Example = {
+		val scheduler = new LongStubLastScheduler {}
+		val frequency = Frequencies.QUARTERLY
+		val start = new DateTime(2014,DateTimeConstants.MAY,30,0,0)
+		val end = new DateTime(2015,DateTimeConstants.FEBRUARY,28,0,0)
+
+		val result = scheduler.schedule(frequency,start,end) must beLike {
+			case Success(x) => x.periods must haveSize(2)
+		}
+
+		"The long stub last scheduler correctly avoid repeating dates" ! result
+
+	}
+
+
+
 
 
 }

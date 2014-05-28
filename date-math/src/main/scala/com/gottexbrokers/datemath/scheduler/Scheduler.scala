@@ -172,8 +172,12 @@ trait ShortStubLastScheduler extends ForwardScheduler
 	override def createStub(end: ReadableDateTime, current: ReadableDateTime, nextDate: ReadableDateTime, nextNextDate: ReadableDateTime): Stream[TimePeriod[ReadableDateTime]] = {
 		if((nextDate compareTo end)>0){
 			// Extreme degenerate case, 1 period only
-			val stubbedPeriod = TimePeriod(current,end,current,nextDate)
-			Stream cons (stubbedPeriod , Stream.empty)
+			if((end compareTo current) > 0) {
+				val stubbedPeriod = TimePeriod(current, end, current, nextDate)
+				Stream cons(stubbedPeriod, Stream.empty)
+			}
+			else
+				Stream.empty
 		}
 		else {
 			val nonStubbedPeriod = TimePeriod(current,nextDate,current,nextDate)
@@ -191,8 +195,12 @@ trait LongStubLastScheduler extends ForwardScheduler
                                     with StubLastDetector {
 
 	override def createStub(end: ReadableDateTime, current: ReadableDateTime, nextDate: ReadableDateTime, nextNextDate: ReadableDateTime): Stream[TimePeriod[ReadableDateTime]] = {
-		val stubbedPeriod =TimePeriod(current,end,current,nextDate)
-		Stream cons (stubbedPeriod, Stream.empty[TimePeriod[ReadableDateTime]] )
+		if((end compareTo current) > 0) {
+			val stubbedPeriod = TimePeriod(current, end, current, nextDate)
+			Stream cons(stubbedPeriod, Stream.empty[TimePeriod[ReadableDateTime]])
+		}
+		else
+			Stream.empty
 	}
 
 

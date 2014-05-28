@@ -37,9 +37,9 @@ class SchedulersCoherenceTest extends Specification
 											The short stub last scheduler always generate the same schedule in Jfin and DateMath  $shortStubLastCoherent
 											The long stub last scheduler always generate the same schedule in Jfin and DateMath $longStubLastCoherent
 							        The no stub last scheduler always generate the same schedule in Jfin and DateMath $noStubSchedulerCoherent
+
+									A known breaking case works correctly $knownFailingExample
              """
-
-
 
 
 	implicit val params = Parameters(workers = 16)
@@ -122,5 +122,18 @@ class SchedulersCoherenceTest extends Specification
 				scheduledDates must beAScheduleEquivalentTo(jfinSchedule)
 			case Failure(x) => jfinScheduler.generate(start, end, scheduleFrequency.period) must throwA[Exception]
 		}
+	}
+
+	def knownFailingExample = {
+		val scheduler = new LongStubLastScheduler {}
+		val jfinScheduler = new LongLastStubScheduleGenerator()
+		val start = DateTime.parse("1970-01-01T00:00:00.000+01:00")
+		val scheduleFrequency = MONTHLY
+		val endFrequency = ANNUALLY
+		val maxPeriods = 1
+		val end = start plus endFrequency.divide(maxPeriods).period
+		val schedule = jfinScheduler.generate(start.toLocalDate,end.toLocalDate,scheduleFrequency.period)
+		println(schedule)
+		testSchedule(start,end,scheduleFrequency,jfinScheduler,scheduler)
 	}
 }
