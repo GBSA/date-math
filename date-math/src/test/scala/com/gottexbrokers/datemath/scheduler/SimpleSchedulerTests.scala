@@ -12,6 +12,7 @@ import scalaz.Failure
 import org.specs2.matcher.Parameters
 import scalaz.Success
 import scala.annotation.tailrec
+import com.mbc.jfin.schedule.impl.{ShortLastStubScheduleGenerator, LongLastStubScheduleGenerator}
 
 
 /**
@@ -49,12 +50,9 @@ class SimpleSchedulerTests extends Specification
 		            The short last stub scheduler
 										Correctly generates the correct period when we are at the end of the month $e8
 
-						   The long last stub scheduler
-										Correctly generates the correct period when we are at the end of the month $e9
-
-
-
 						"""
+
+
 
 
 
@@ -230,8 +228,8 @@ class SimpleSchedulerTests extends Specification
 		val frequency = Frequencies.QUARTERLY
 		val start = new DateTime(2014,DateTimeConstants.MAY,30,0,0)
 		val end = new DateTime(2015,DateTimeConstants.FEBRUARY,28,0,0)
-
-		val result = scheduler.schedule(frequency,start,end) must beLike {
+		val r1 = scheduler.schedule(frequency,start,end)
+		val result = r1 must beLike {
 			case Success(x) => x.periods must haveSize(3)
 		}
 
@@ -239,19 +237,7 @@ class SimpleSchedulerTests extends Specification
 
 	}
 
-	def e9:Example = {
-		val scheduler = new LongStubLastScheduler {}
-		val frequency = Frequencies.QUARTERLY
-		val start = new DateTime(2014,DateTimeConstants.MAY,30,0,0)
-		val end = new DateTime(2015,DateTimeConstants.FEBRUARY,28,0,0)
 
-		val result = scheduler.schedule(frequency,start,end) must beLike {
-			case Success(x) => x.periods must haveSize(2)
-		}
-
-		"The long stub last scheduler correctly avoid repeating dates" ! result
-
-	}
 
 
 

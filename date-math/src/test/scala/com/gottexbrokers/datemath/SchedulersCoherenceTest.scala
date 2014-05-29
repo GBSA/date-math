@@ -12,6 +12,7 @@ import org.scalacheck.util.Pretty
 import scalaz.Failure
 import org.specs2.matcher.Parameters
 import scalaz.Success
+import scalaz.Alpha.A
 
 /**
  * Created with IntelliJ IDEA.
@@ -30,18 +31,20 @@ class SchedulersCoherenceTest extends Specification
 	override val defaultPrettyParams = Pretty.Params(2)
 
 	def is = s2"""
-	             	  The schedulers are coherent between jfin and datemath
+		             	  The schedulers are coherent between jfin and datemath
 
-		                  The short stub first scheduler always generate the same schedule in Jfin and DateMath $shortStubFirstCoherent
-									    The long stub first scheduler always generate the same schedule in Jfin and DateMath  $longStubFirstCoherent
-											The short stub last scheduler always generate the same schedule in Jfin and DateMath  $shortStubLastCoherent
-											The long stub last scheduler always generate the same schedule in Jfin and DateMath $longStubLastCoherent
-							        The no stub last scheduler always generate the same schedule in Jfin and DateMath $noStubSchedulerCoherent
+			                  The short stub first scheduler always generate the same schedule in Jfin and DateMath $shortStubFirstCoherent
+										    The long stub first scheduler always generate the same schedule in Jfin and DateMath  $longStubFirstCoherent
+												The short stub last scheduler always generate the same schedule in Jfin and DateMath  $shortStubLastCoherent
+												The long stub last scheduler always generate the same schedule in Jfin and DateMath $longStubLastCoherent
+								        The no stub last scheduler always generate the same schedule in Jfin and DateMath $noStubSchedulerCoherent
+												A known breaking case works correctly $knownFailingExample
+												A second known breaking case works correctly $knownFailingExample2
+	             """
 
-									A known breaking case works correctly $knownFailingExample
-             """
 
 
+//	def is = knownFailingExample
 	implicit val params = Parameters(workers = 16)
 
 	implicit val arbitraryPeriodCount = Arbitrary {
@@ -133,7 +136,18 @@ class SchedulersCoherenceTest extends Specification
 		val maxPeriods = 1
 		val end = start plus endFrequency.divide(maxPeriods).period
 		val schedule = jfinScheduler.generate(start.toLocalDate,end.toLocalDate,scheduleFrequency.period)
-		println(schedule)
+		testSchedule(start,end,scheduleFrequency,jfinScheduler,scheduler)
+	}
+
+	def knownFailingExample2 = {
+		val scheduler = new ShortStubLastScheduler {}
+		val jfinScheduler = new ShortLastStubScheduleGenerator()
+		val start = DateTime.parse("1970-01-01T00:00:00.000+01:00")
+		val scheduleFrequency = MONTHLY
+		val endFrequency = DAILY
+		val maxPeriods = 1
+		val end = start plus endFrequency.divide(maxPeriods).period
+		val schedule = jfinScheduler.generate(start.toLocalDate,end.toLocalDate,scheduleFrequency.period)
 		testSchedule(start,end,scheduleFrequency,jfinScheduler,scheduler)
 	}
 }

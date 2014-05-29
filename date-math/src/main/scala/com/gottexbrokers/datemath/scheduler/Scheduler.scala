@@ -113,12 +113,15 @@ trait ForwardScheduler extends StubbingScheduler{
 		def toStream(current:ReadableDateTime, currentIndex:Int):Stream[TimePeriod[ReadableDateTime]] = {
 			// We need double look ahead
 			val nextDate = frequency.divide(currentIndex) addTo start
-			val nextNextDate = frequency.divide(currentIndex+1)  addTo start
+			val nextNextDate = frequency.divide(currentIndex+1) addTo start
 			if(isStubRequiredAt(start,end,nextNextDate))
 				createStub(end,current,nextDate,nextNextDate)
 			else{
 				val period = TimePeriod(current,nextDate,current,nextDate)
-				Stream.cons(period, toStream(nextDate,currentIndex+1) )
+				if( (nextDate compareTo end)==0)
+					Stream.cons(period,Stream.empty)
+				else
+					Stream.cons(period, toStream(nextDate,currentIndex+1) )
 			}
 		}
 		Success(Schedule(toStream(start,1),start,end))
@@ -170,21 +173,11 @@ trait ShortStubLastScheduler extends ForwardScheduler
 
 
 	override def createStub(end: ReadableDateTime, current: ReadableDateTime, nextDate: ReadableDateTime, nextNextDate: ReadableDateTime): Stream[TimePeriod[ReadableDateTime]] = {
-		if((nextDate compareTo end)>0){
-			// Extreme degenerate case, 1 period only
-			if((end compareTo current) > 0) {
-				val stubbedPeriod = TimePeriod(current, end, current, nextDate)
-				Stream cons(stubbedPeriod, Stream.empty)
-			}
-			else
-				Stream.empty
+		if((nextDate compareTo end)>=0){
+			Stream.cons(TimePeriod(current,end,current,nextDate),Stream.empty)
 		}
-		else {
-			val nonStubbedPeriod = TimePeriod(current,nextDate,current,nextDate)
-			val stubbedPeriod = TimePeriod(nextDate,end,nextDate,nextNextDate)
-			Stream cons (nonStubbedPeriod , Stream cons (stubbedPeriod, Stream.empty[TimePeriod[ReadableDateTime]] ))
-		}
-
+		else
+			Stream.cons(TimePeriod(current,nextDate,current,nextDate),Stream cons ( TimePeriod(nextDate,end,nextDate,nextNextDate), Stream.empty )  )
 	}
 
 
@@ -195,12 +188,9 @@ trait LongStubLastScheduler extends ForwardScheduler
                                     with StubLastDetector {
 
 	override def createStub(end: ReadableDateTime, current: ReadableDateTime, nextDate: ReadableDateTime, nextNextDate: ReadableDateTime): Stream[TimePeriod[ReadableDateTime]] = {
-		if((end compareTo current) > 0) {
 			val stubbedPeriod = TimePeriod(current, end, current, nextDate)
 			Stream cons(stubbedPeriod, Stream.empty[TimePeriod[ReadableDateTime]])
-		}
-		else
-			Stream.empty
+
 	}
 
 
