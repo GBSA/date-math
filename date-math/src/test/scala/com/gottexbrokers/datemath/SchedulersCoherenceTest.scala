@@ -58,6 +58,7 @@ class SchedulersCoherenceTest extends Specification
 	}
 
 	def shortStubFirstCoherent: Prop = {
+
 		val scheduler = new ShortStubFirstScheduler {}
 		testStubScheduler(new ShortFirstStubScheduleGenerator(), scheduler)
 	}

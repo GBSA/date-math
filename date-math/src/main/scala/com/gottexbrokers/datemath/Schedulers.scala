@@ -11,32 +11,32 @@ import com.gottexbrokers.datemath.scheduler._
  */
 object Schedulers {
 
-	private val defaultShortFirstStubScheduler = new ShortStubFirstScheduler {
+	case object ShortStubFirstScheduler extends ShortStubFirstScheduler {
 		override val toString = "Default date-math short stub first scheduler"
 	}
 
-	private val defaultShortLastStubScheduler = new ShortStubLastScheduler {
+	case object ShortStubLastScheduler extends ShortStubLastScheduler{
 		override val toString = "Default date-math short stub last scheduler"
 	}
 
-	private val defaultLongFirstStubScheduler = new LongStubFirstScheduler {
+	case object LongStubFirstScheduler extends LongStubFirstScheduler {
 		override val toString = "Default date-math long stub first scheduler"
 	}
 
-	private val defaultLongLastStubScheduler = new LongStubLastScheduler {
+	case object LongStubLastScheduler extends LongStubLastScheduler {
 		override val toString = "Default date-math long stub last scheduler"
 	}
 
-	private val defaultNoStubScheduler = new NoStubScheduler {
+	case object NoStubScheduler extends NoStubScheduler {
 		override val toString = "Default date-math no stub scheduler"
 	}
 
 	private val map = Map[StubType,Scheduler] (
-	  StubTypes.SHORT_FIRST -> defaultShortFirstStubScheduler,
-		StubTypes.SHORT_LAST -> defaultShortLastStubScheduler,
-	  StubTypes.LONG_FIRST -> defaultLongFirstStubScheduler,
-	  StubTypes.LONG_LAST -> defaultLongLastStubScheduler,
-		StubTypes.NONE -> defaultNoStubScheduler
+	  StubTypes.SHORT_FIRST -> ShortStubFirstScheduler,
+		StubTypes.SHORT_LAST -> ShortStubLastScheduler,
+	  StubTypes.LONG_FIRST -> LongStubFirstScheduler,
+	  StubTypes.LONG_LAST -> LongStubLastScheduler,
+		StubTypes.NONE -> NoStubScheduler
 	)
 
 	def apply(stubType:StubType):Option[Scheduler] = map get stubType
