@@ -3,6 +3,7 @@ package com.gottexbrokers.datemath
 import org.joda.time.{Years, DateTime, ReadableDateTime, DateTimeConstants}
 import scala.annotation.tailrec
 import com.gottexbrokers.datemath.utils.{OrderingImplicits, DateAdjustmentTools}
+import com.gottexbrokers.datemath.DayCountCalculators.{YearMonthDayTuple, Simple360DayCountCalculator}
 
 
 /**
@@ -92,15 +93,16 @@ object DayCountCalculators {
 
 	}
 
-	trait Simple360DayCountCalculator  extends SimpleDayCountCalculator {
+	trait Simple360DayCountCalculator  extends DayCountCalculator {
 
 		protected def readableDateTimeToTuples(start:ReadableDateTime,end:ReadableDateTime): (YearMonthDayTuple,YearMonthDayTuple)
 
-		override def calculateDayCountFraction(start: ReadableDateTime, end: ReadableDateTime): Double = {
+
+
+		override def calculateDayCountFraction(start: ReadableDateTime, end: ReadableDateTime, referenceStart: Option[ReadableDateTime], referenceEnd: Option[ReadableDateTime]): Double = {
 			val (tuple1,tuple2) = readableDateTimeToTuples(start,end)
 			(tuple2.as30360 - tuple1.as30360)/360d
 		}
-
 	}
 
 	case class US30360DayCountCalculator(eom:Boolean) extends Simple360DayCountCalculator {
@@ -212,14 +214,13 @@ object DayCountCalculators {
 
 
 
-	trait NormalizedActualDayCountCalculator extends SimpleDayCountCalculator {
+	trait NormalizedActualDayCountCalculator extends DayCountCalculator {
 
 		def normalizationFactor: Double
 
-		override def calculateDayCountFraction(start: ReadableDateTime, end: ReadableDateTime): Double = {
+		override def calculateDayCountFraction(start: ReadableDateTime, end: ReadableDateTime, referenceStart: Option[ReadableDateTime], referenceEnd: Option[ReadableDateTime]): Double = {
 			(start daysTo end) / normalizationFactor
 		}
-
 	}
 
 	case object Actual360DayCountCalculator extends NormalizedActualDayCountCalculator {
@@ -237,9 +238,11 @@ object DayCountCalculators {
 
 	}
 
-	case object AFBActualActualDayCountCalculator extends DayCountCalculator {
+	case object AFBActualActualDayCountCalculator extends PeriodBaseCalculator {
 
 		import OrderingImplicits._
+
+
 
 
 		override def apply[A <: ReadableDateTime](period: TimePeriod[A]): Double = {
@@ -295,7 +298,7 @@ object DayCountCalculators {
 	 *  - ISDA 2006 Section 4.16(b)
 	 */
 
-	case object ISDAActualActualDayCountCalculator extends DayCountCalculator {
+	case object ISDAActualActualDayCountCalculator extends PeriodBaseCalculator {
 
 
 
@@ -319,7 +322,7 @@ object DayCountCalculators {
 	}
 
 
-	case class Business252DayCountCalculator(hc: HolidayCalendar) extends SimpleDayCountCalculator {
+	case class Business252DayCountCalculator(hc: HolidayCalendar) extends DayCountCalculator {
 
 			import OrderingImplicits._
 
@@ -336,12 +339,12 @@ object DayCountCalculators {
 			}
 			// In an interval the start never follows the end, so we are sure the API call is correct
 
-		override def calculateDayCountFraction(start: ReadableDateTime, end: ReadableDateTime): Double = 			getBusinessDaysBetween(start,end,0)/252.0
+		override def calculateDayCountFraction(start: ReadableDateTime, end: ReadableDateTime, referenceStart: Option[ReadableDateTime], referenceEnd: Option[ReadableDateTime]): Double = getBusinessDaysBetween(start,end,0)/252.0
 
 	}
 
 
-	case object ISMAActualActualDayCountCalculator extends DayCountCalculator {
+	case object ISMAActualActualDayCountCalculator extends PeriodBaseCalculator {
 
 
 		override def apply[A <: ReadableDateTime](period: TimePeriod[A]): Double = {

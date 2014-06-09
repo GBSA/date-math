@@ -94,26 +94,27 @@ trait DayCountConvention{
 trait DayCountCalculator {
 
 
+	def calculateDayCountFraction(start:ReadableDateTime, end:ReadableDateTime, referenceStart:Option[ReadableDateTime] = None, referenceEnd:Option[ReadableDateTime] = None): Double
+
+	def apply(start:ReadableDateTime, end:ReadableDateTime,referenceStart:Option[ReadableDateTime] = None, referenceEnd:Option[ReadableDateTime] = None): Double = calculateDayCountFraction(start,end,referenceStart,referenceEnd)
+
+	def apply[A<:ReadableDateTime](period:TimePeriod[A]):Double = calculateDayCountFraction(period.start,period.end, Some(period.referenceStart),Some(period.referenceEnd))
+
+}
+
+
+
+private [datemath] trait PeriodBaseCalculator  extends DayCountCalculator{
+
+	def calculateDayCountFraction(start:ReadableDateTime, end:ReadableDateTime, referenceStart:Option[ReadableDateTime] = None, referenceEnd:Option[ReadableDateTime] = None): Double = {
+		val period = TimePeriod fromOptionalReferences (start,end,referenceStart,referenceEnd)
+		apply(period)
+	}
+
 	def apply[A<:ReadableDateTime](period:TimePeriod[A]):Double
-
-}
-
-trait SimpleDayCountCalculator extends DayCountCalculator {
-
-	def calculateDayCountFraction(start:ReadableDateTime, end:ReadableDateTime): Double
-
-	def apply(start:ReadableDateTime, end:ReadableDateTime): Double = calculateDayCountFraction(start,end)
-
-	def apply[A<:ReadableDateTime](period:TimePeriod[A]):Double = apply(period.start,period.end)
-
 }
 
 
-trait ActualActualDayCountCalculator extends DayCountCalculator {
-
-
-
-}
 
 
 trait StubType
@@ -172,3 +173,13 @@ case class TimePeriod[+A<:ReadableDateTime](start:A, end:A, referenceStart:A, re
 }
 
 
+
+object TimePeriod {
+
+	def fromOptionalReferences[A<:ReadableDateTime](start:A,end:A,referenceStart:Option[A],referenceEnd:Option[A]):TimePeriod[A] = {
+		val nonNullReferenceStart = referenceStart getOrElse start
+		val nonNullReferenceEnd = referenceEnd getOrElse end
+		new TimePeriod(start,end,nonNullReferenceStart,nonNullReferenceEnd)
+	}
+
+}
