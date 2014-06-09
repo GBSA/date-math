@@ -50,11 +50,11 @@ object DayCountConventions {
 		val calculator = new US30360DayCountCalculator(false)
 	}
 
-  case class ISMAActualActual(frequency:Frequency with ExactFitInYear) extends DayCountConvention {
-    val calculator = new ISMAActualActualDayCountCalculator(frequency)
+  case object ISMAActualActual  extends DayCountConvention {
+    val calculator = ISMAActualActualDayCountCalculator
   }
-  case class ICMAActualActual(frequency:Frequency with ExactFitInYear) extends DayCountConvention {
-    val calculator =   new ISMAActualActualDayCountCalculator(frequency)
+  case object ICMAActualActual extends DayCountConvention {
+	  val calculator = ISMAActualActualDayCountCalculator
   }
 
   case class Business252(hc: HolidayCalendar) extends DayCountConvention {

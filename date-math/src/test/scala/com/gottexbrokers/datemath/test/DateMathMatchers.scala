@@ -116,7 +116,8 @@ trait DayCountConventionTupleMatchers extends JodaTimeDateMatchers with MustMatc
 
 			override def apply[S <: (DayCountCalculator, JFinDaycountCalculator)](t: Expectable[S]): MatchResult[S] = {
 				val (dateMathCalculator, jfinCalculator) = t.value
-				val dateMathResult = dateMathCalculator apply period
+				val timePeriod = TimePeriod(period.start,period.end,period.start,period.end)
+				val dateMathResult = dateMathCalculator apply timePeriod
 				val jfinCalculatorResult =  jfinCalculator calculateDaycountFraction period
 				val matchResult = jfinCalculatorResult must beCloseTo(dateMathResult,1e-15)
 				val message = s"jfin.$jfinCalculator and -datemath.$dateMathCalculator adjust date $period to $dateMathCalculator and $jfinCalculatorResult: ${matchResult.message}"

@@ -68,7 +68,7 @@ class DayCountCalculatorsCoherenceTest extends Specification
 		val exampleName = s"jfin.$jfinConvention and date-math.$dateMathCalculator must compute the same value "
 		val date1 = DateTime parse "2173-06-09T00:00:00.000+02:00"
 		val date2 = DateTime parse "2242-02-28T00:00:00.000+01:00"
-		val period:Period[DateTime] = TimePeriod(date1,date2,date1,date2)
+		val period:TimePeriod[DateTime] = TimePeriod(date1,date2,date1,date2)
 		exampleName ! (tuple5 must computeIdenticalDayCountFor(period))
 	}
 

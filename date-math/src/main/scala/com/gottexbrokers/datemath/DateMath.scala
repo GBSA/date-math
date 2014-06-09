@@ -93,14 +93,28 @@ trait DayCountConvention{
 
 trait DayCountCalculator {
 
-	def calculateDayCountFraction(start:ReadableDateTime, end:ReadableDateTime): Double
 
+	def apply[A<:ReadableDateTime](period:TimePeriod[A]):Double
+
+}
+
+trait SimpleDayCountCalculator extends DayCountCalculator {
+
+	def calculateDayCountFraction(start:ReadableDateTime, end:ReadableDateTime): Double
 
 	def apply(start:ReadableDateTime, end:ReadableDateTime): Double = calculateDayCountFraction(start,end)
 
-	def apply[A<:ReadableDateTime](period:Period[A]):Double = apply(period.start,period.end)
+	def apply[A<:ReadableDateTime](period:TimePeriod[A]):Double = apply(period.start,period.end)
 
 }
+
+
+trait ActualActualDayCountCalculator extends DayCountCalculator {
+
+
+
+}
+
 
 trait StubType
 

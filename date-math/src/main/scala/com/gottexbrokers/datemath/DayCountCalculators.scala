@@ -92,7 +92,7 @@ object DayCountCalculators {
 
 	}
 
-	trait Simple360DayCountCalculator  extends DayCountCalculator {
+	trait Simple360DayCountCalculator  extends SimpleDayCountCalculator {
 
 		protected def readableDateTimeToTuples(start:ReadableDateTime,end:ReadableDateTime): (YearMonthDayTuple,YearMonthDayTuple)
 
@@ -212,7 +212,7 @@ object DayCountCalculators {
 
 
 
-	trait NormalizedActualDayCountCalculator extends DayCountCalculator {
+	trait NormalizedActualDayCountCalculator extends SimpleDayCountCalculator {
 
 		def normalizationFactor: Double
 
@@ -242,13 +242,13 @@ object DayCountCalculators {
 		import OrderingImplicits._
 
 
-		override def calculateDayCountFraction(start: ReadableDateTime, end: ReadableDateTime): Double = {
-			val timePeriod = TimePeriod(start,end,start,end)
-			val splittedPeriods = timePeriod splitInArrear previousDateBuilder
+		override def apply[A <: ReadableDateTime](period: TimePeriod[A]): Double = {
+			val splittedPeriods = period splitInArrear previousDateBuilder
 			(splittedPeriods map {
 				period => tau(period.start,period.end)
 			}).sum
 		}
+
 
 		private def previousDateBuilder(readableDateTime: ReadableDateTime) = {
 			val date = readableDateTime.toDateTime
@@ -294,12 +294,14 @@ object DayCountCalculators {
 	 * Sources:
 	 *  - ISDA 2006 Section 4.16(b)
 	 */
+
 	case object ISDAActualActualDayCountCalculator extends DayCountCalculator {
 
 
-		override def calculateDayCountFraction(start: ReadableDateTime, end: ReadableDateTime): Double = {
-			val timePeriod = TimePeriod(start,end,start,end)
-			val splittedPeriods = timePeriod splitInArrear  previousDateBuilder
+
+
+		override def apply[A <: ReadableDateTime](period: TimePeriod[A]): Double = {
+			val splittedPeriods = period splitInArrear  previousDateBuilder
 			(splittedPeriods map tau).sum
 		}
 
@@ -317,7 +319,7 @@ object DayCountCalculators {
 	}
 
 
-	case class Business252DayCountCalculator(hc: HolidayCalendar) extends DayCountCalculator {
+	case class Business252DayCountCalculator(hc: HolidayCalendar) extends SimpleDayCountCalculator {
 
 			import OrderingImplicits._
 
@@ -339,17 +341,14 @@ object DayCountCalculators {
 	}
 
 
-	case class ISMAActualActualDayCountCalculator(frequency: Frequency with ExactFitInYear) extends DayCountCalculator {
+	case object ISMAActualActualDayCountCalculator extends DayCountCalculator {
 
 
-		override def calculateDayCountFraction(start:ReadableDateTime,end:ReadableDateTime): Double = {
-
-			val firstCouponDate = frequency addTo start
-			val daysInPeriod = start daysTo firstCouponDate
-			val daysInRange: Double = start daysTo end
-			daysInRange / (frequency.periodsPerYear * daysInPeriod)
+		override def apply[A <: ReadableDateTime](period: TimePeriod[A]): Double = {
+			val daysInPeriod = period.start daysTo period.end
+			val expectedDays = period.referenceStart daysTo period.referenceEnd
+			daysInPeriod.toDouble / expectedDays.toDouble
 		}
-
 
 	}
 
