@@ -13,8 +13,6 @@ package com.gottexbrokers.datemath
  * <li> Modified Following
  * <li> Month End Reference
  * </ul>
- * 
- * @author jeremy.nguyenxuan
  *
  */
 

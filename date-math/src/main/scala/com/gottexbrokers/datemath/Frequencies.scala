@@ -2,20 +2,16 @@ package com.gottexbrokers.datemath
 
 import org.joda.time._
 
-
 object Frequencies {
 
-
-
-
-  val values = Seq(DAILY,WEEKLY,LUNAR_MONTHLY,MONTHLY,QUARTERLY,SEMI_ANNUALLY,ANNUALLY)
+  val values = Seq(DAILY, WEEKLY, LUNAR_MONTHLY, MONTHLY, QUARTERLY, SEMI_ANNUALLY, ANNUALLY)
 
   /**
    * Repeats every day
    */
-  case object DAILY extends Frequency{
+  case object DAILY extends Frequency {
 
-	  override def period: ReadablePeriod = Days days 1
+    override def period: ReadablePeriod = Days days 1
 
   }
 
@@ -24,26 +20,26 @@ object Frequencies {
    */
   case object WEEKLY extends Frequency {
 
-	  override def period: ReadablePeriod = Days days 7
+    override def period: ReadablePeriod = Days days 7
 
   }
 
   /**
    * Repeats every 28 days
    */
-  case object LUNAR_MONTHLY extends Frequency{
+  case object LUNAR_MONTHLY extends Frequency {
 
-	  override def period: ReadablePeriod = Days days 28
+    override def period: ReadablePeriod = Days days 28
 
   }
-	
-	 class MonthMultipleFrequency private[Frequencies](val months:Int) extends Frequency with ExactFitInYear {
 
-		 override def period: ReadablePeriod = Months months months
+  class MonthMultipleFrequency private[Frequencies] (val months: Int) extends Frequency with ExactFitInYear {
 
-		val periodsPerYear =  12 / months
+    override def period: ReadablePeriod = Months months months
 
-	}
+    val periodsPerYear = 12 / months
+
+  }
 
   /**
    * Repeats on the same day of every month
@@ -64,17 +60,11 @@ object Frequencies {
    */
   case object ANNUALLY extends MonthMultipleFrequency(12)
 
-	/**
-	 * A generic frequency determined straight from a Joda ReadablePeriod
-	 * @param period the inverse of the frequency
-	 */
-	case class ArbitraryFrequency(period:ReadablePeriod) extends Frequency
-
-
-
-
-
-
+  /**
+   * A generic frequency determined straight from a Joda ReadablePeriod
+   * @param period the inverse of the frequency
+   */
+  case class ArbitraryFrequency(period: ReadablePeriod) extends Frequency
 
 }
 

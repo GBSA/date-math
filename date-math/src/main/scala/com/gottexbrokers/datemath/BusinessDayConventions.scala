@@ -4,7 +4,6 @@ import org.joda.time.ReadableDateTime
 import com.gottexbrokers.datemath.utils.RichJodaTimeExtensions._
 import scala.annotation.tailrec
 
-
 /**
  * <p>
  * Enumeration of the various business day conventions:
@@ -22,72 +21,60 @@ import scala.annotation.tailrec
 
 object BusinessDayConventions {
 
-	private implicit def toDateTime(readableDateTime:ReadableDateTime) = readableDateTime.toDateTime
+  private implicit def toDateTime(readableDateTime: ReadableDateTime) = readableDateTime.toDateTime
 
-	val values:Seq[BusinessDayConvention] = Seq(UNADJUSTED,PRECEDING,FOLLOWING,MODIFIED_FOLLOWING,MODIFIED_PRECEDING,MONTH_END_REFERENCE)
+  val values: Seq[BusinessDayConvention] = Seq(UNADJUSTED, PRECEDING, FOLLOWING, MODIFIED_FOLLOWING, MODIFIED_PRECEDING, MONTH_END_REFERENCE)
 
   /**
    * Do not adjust.
    */
   case object UNADJUSTED extends UnadjustedBusinessDayConvention
 
-
   /**
    * Choose the first business day before the given holiday.
    */
   case object PRECEDING extends BusinessDayConvention {
-
     @tailrec
     def adjust(dt: ReadableDateTime)(implicit hc: HolidayCalendar): ReadableDateTime = {
-      if (! ( hc.isHoliday(dt) || hc.isWeekend(dt)) ) {
+      if (!(hc.isHoliday(dt) || hc.isWeekend(dt))) {
         dt
       } else {
         adjust(dt minusDays 1)
       }
-
     }
   }
-
 
   /**
    * Choose the first business day after the given holiday.
    */
   case object FOLLOWING extends BusinessDayConvention {
     @tailrec
-    def adjust(dt: ReadableDateTime)(implicit hc: HolidayCalendar) : ReadableDateTime = {
-      if ( !( hc.isHoliday(dt) || hc.isWeekend(dt))) {
+    def adjust(dt: ReadableDateTime)(implicit hc: HolidayCalendar): ReadableDateTime = {
+      if (!(hc.isHoliday(dt) || hc.isWeekend(dt))) {
         dt
       } else {
         adjust(dt plusDays 1)
       }
-
     }
   }
-
-
 
   /**
    * Choose the first business day after the given holiday, if the original
    * date falls on last business day of month result reverts to first business
    * day before month-end
    */
-  case object MONTH_END_REFERENCE extends BusinessDayConvention  {
-
+  case object MONTH_END_REFERENCE extends BusinessDayConvention {
     def adjust(dt: ReadableDateTime)(implicit hc: HolidayCalendar): ReadableDateTime = {
       PRECEDING adjust dt.dayOfMonth.withMaximumValue
     }
-
   }
-
-
-
 
   /**
    * Choose the first business day before the given holiday unless it belongs
    * to a different month, in which case choose the first business day after
    * the holiday.
    */
-  case object MODIFIED_PRECEDING extends BusinessDayConvention{
+  case object MODIFIED_PRECEDING extends BusinessDayConvention {
     def adjust(dt: ReadableDateTime)(implicit hc: HolidayCalendar): ReadableDateTime = {
       val adjustedDate = PRECEDING adjust dt
       if (adjustedDate.monthOfYear != dt.monthOfYear) {
